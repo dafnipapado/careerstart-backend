@@ -17,7 +17,6 @@ public record EmployerInsertDTO(
         @Pattern(regexp = "\\d{9,}")
         String vat,
 
-        @NotBlank
         @Size(max = 255)
         String website,
 
