@@ -1,5 +1,7 @@
-package io.github.dafnipapado.careerstart_backend.dto;
+package io.github.dafnipapado.careerstart_backend.dto.employer;
 
+import io.github.dafnipapado.careerstart_backend.dto.personalInfo.PersonalInfoInsertDTO;
+import io.github.dafnipapado.careerstart_backend.dto.user.UserInsertDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
