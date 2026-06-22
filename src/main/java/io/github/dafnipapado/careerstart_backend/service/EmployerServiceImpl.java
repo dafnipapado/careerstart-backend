@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,6 +29,8 @@ public class EmployerServiceImpl implements IEmployerService{
     private final RegionRepository regionRepository;
     private final EmployerRepository employerRepository;
     private final UserRepository userRepository;
+    private final IUserService userService;
+    private final IPersonalInfoService personalInfoService;
     private final PasswordEncoder passwordEncoder;
     private final static Long employerRoleId = 2L;
 
@@ -49,17 +53,14 @@ public class EmployerServiceImpl implements IEmployerService{
 
         //fetch and set related entities
         Long professionalFieldId = employerInsertDTO.professionalFieldId();
-        ProfessionalField professionalField = professionalFieldRepository.findById(professionalFieldId)
-                .orElseThrow(() -> new EntityNotFoundException("ProfessionalField", "Professional field with id = '" + professionalFieldId + "' not found."));
+        ProfessionalField professionalField = getProfessionalFieldById(professionalFieldId);
         employer.setProfessionalField(professionalField);
 
-        Role role = roleRepository.findById(employerRoleId)
-                .orElseThrow(() -> new EntityNotFoundException("Role", "Role with id = '" + employerRoleId + "' not found."));
+        Role role = userService.getRoleById(employerRoleId);
         employer.getUser().setRole(role);
 
         Long regionId = employerInsertDTO.personalInfoInsertDTO().regionId();
-        Region region = regionRepository.findById(regionId)
-                .orElseThrow(() -> new EntityNotFoundException("Region", "Region with id = '" + regionId + "' not found."));
+        Region region = personalInfoService.getRegionById(regionId);
         employer.getPersonalInfo().setRegion(region);
 
         //save employer entity
@@ -67,6 +68,17 @@ public class EmployerServiceImpl implements IEmployerService{
         log.info("Employer '" + employerInsertDTO.brandName() + "' was saved successfully.");
 
         return mapper.mapToEmployerReadOnlyDTO(employer);
+    }
 
+    @Override
+    public Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException {
+        return employerRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("Employer", "Employer with uuid = '" + uuid + "' not found."));
+    }
+
+    @Override
+    public ProfessionalField getProfessionalFieldById(Long professionalFieldId) throws EntityNotFoundException {
+        return professionalFieldRepository.findById(professionalFieldId)
+                .orElseThrow(() -> new EntityNotFoundException("ProfessionalField", "Professional field with id = '" + professionalFieldId + "' not found."));
     }
 }
