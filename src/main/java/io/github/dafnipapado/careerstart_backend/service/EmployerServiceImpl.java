@@ -4,6 +4,7 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -25,10 +27,9 @@ public class EmployerServiceImpl implements IEmployerService{
 
     private final Mapper mapper;
     private final ProfessionalFieldRepository professionalFieldRepository;
-    private final RoleRepository roleRepository;
-    private final RegionRepository regionRepository;
     private final EmployerRepository employerRepository;
     private final UserRepository userRepository;
+    private final PersonalInfoRepository personalInfoRepository;
     private final IUserService userService;
     private final IPersonalInfoService personalInfoService;
     private final PasswordEncoder passwordEncoder;
@@ -66,6 +67,55 @@ public class EmployerServiceImpl implements IEmployerService{
         //save employer entity
         employerRepository.save(employer);
         log.info("Employer '" + employerInsertDTO.brandName() + "' was saved successfully.");
+
+        return mapper.mapToEmployerReadOnlyDTO(employer);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {EntityNotFoundException.class, EntityAlreadyExistsException.class})
+    public EmployerReadOnlyDTO update(EmployerUpdateDTO employerUpdateDTO) throws EntityNotFoundException, EntityAlreadyExistsException {
+
+        Employer employer = getEmployerByUuid(employerUpdateDTO.uuid());
+
+        //set updated fields for employer
+        employer.setBrandName(employerUpdateDTO.brandName());
+        employer.setWebsite(employerUpdateDTO.website());
+        //-check for already existing vat, if changed
+        String updatedVat = employerUpdateDTO.vat();
+        if (!Objects.equals(updatedVat, employer.getVat()) && employerRepository.findByVat(updatedVat).isPresent()) {
+            throw new EntityAlreadyExistsException("Employer", "Employer with vat = '" + updatedVat + "' already exists.");
+        }
+        employer.setVat(updatedVat);
+        //-find and set the updated professionalId, if changed
+        if (!Objects.equals(employerUpdateDTO.professionalFieldId(), employer.getProfessionalField().getId())) {
+            ProfessionalField updatedProfessionalField = getProfessionalFieldById(employerUpdateDTO.professionalFieldId());
+            employer.getProfessionalField().remove(employer);
+            updatedProfessionalField.addEmployer(employer);
+        }
+
+        //set updated fields for user
+        //-check for already existing username, if changed
+        String updatedUsername = employerUpdateDTO.userUpdateDTO().username();
+        if (!Objects.equals(updatedUsername, employer.getUser().getUsername()) && userRepository.findByUsername(updatedUsername).isPresent()) {
+            throw new EntityAlreadyExistsException("User", "User with username = '" + updatedUsername + "' already exists.");
+        }
+        employer.getUser().setUsername(updatedUsername);
+
+        //set updated fields for personalInfo
+        //-check for already existing email, if changed
+        String updatedEmail = employerUpdateDTO.personalInfoUpdateDTO().email();
+        if (!Objects.equals(updatedEmail, employer.getPersonalInfo().getEmail()) && personalInfoRepository.findByEmail(updatedEmail).isPresent()) {
+            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = '" + updatedEmail + "' already exists.");
+        }
+        employer.getPersonalInfo().setEmail(updatedEmail);
+        employer.getPersonalInfo().setTelephoneNumber(employerUpdateDTO.personalInfoUpdateDTO().telephoneNumber());
+        employer.getPersonalInfo().setAddress(employerUpdateDTO.personalInfoUpdateDTO().address());
+        //-find and set the updated region, if changed
+        if(!Objects.equals(employerUpdateDTO.personalInfoUpdateDTO().regionId(), employer.getPersonalInfo().getRegion().getId())) {
+            Region updatedRegion = personalInfoService.getRegionById(employerUpdateDTO.personalInfoUpdateDTO().regionId());
+            employer.getPersonalInfo().getRegion().removePersonalInfo(employer.getPersonalInfo());
+            updatedRegion.addPersonalInfo(employer.getPersonalInfo());
+        }
 
         return mapper.mapToEmployerReadOnlyDTO(employer);
     }

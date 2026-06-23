@@ -4,6 +4,7 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 public interface IEmployerService {
     EmployerReadOnlyDTO save(EmployerInsertDTO employerInsertDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
+    EmployerReadOnlyDTO update(EmployerUpdateDTO employerUpdateDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
 
     Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException;
     ProfessionalField getProfessionalFieldById(Long professionalFieldId) throws EntityNotFoundException;
