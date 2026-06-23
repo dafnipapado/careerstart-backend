@@ -39,12 +39,15 @@ public class EmployerServiceImpl implements IEmployerService{
     @Transactional(rollbackFor = {EntityNotFoundException.class, EntityAlreadyExistsException.class})
     public EmployerReadOnlyDTO save(EmployerInsertDTO employerInsertDTO) throws EntityNotFoundException, EntityAlreadyExistsException {
 
-        //checks for vat and username
+        //checks for already existing vat, username and email
         if (employerRepository.findByVat(employerInsertDTO.vat()).isPresent()) {
             throw new EntityAlreadyExistsException("Employer", "Employer with vat = '" + employerInsertDTO.vat() + "' already exists.");
         }
         if (userRepository.findByUsername(employerInsertDTO.userInsertDTO().username()).isPresent()) {
             throw new EntityAlreadyExistsException("User", "User with username = '" + employerInsertDTO.userInsertDTO().username() + "' already exists.");
+        }
+        if (personalInfoRepository.findByEmail(employerInsertDTO.personalInfoInsertDTO().email()).isPresent()) {
+            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = '" + employerInsertDTO.personalInfoInsertDTO().email() + "' already exists.");
         }
 
         Employer employer = mapper.mapToEmployerEntity(employerInsertDTO);
