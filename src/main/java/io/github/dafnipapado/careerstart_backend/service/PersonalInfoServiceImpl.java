@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PersonalInfoService implements IPersonalInfoService {
+public class PersonalInfoServiceImpl implements IPersonalInfoService {
 
     private final RegionRepository regionRepository;
     private final PersonalInfoRepository personalInfoRepository;
