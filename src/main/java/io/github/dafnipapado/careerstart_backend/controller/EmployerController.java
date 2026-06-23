@@ -26,7 +26,7 @@ public class EmployerController {
     private final IEmployerService employerService;
 
     @PostMapping
-    public ResponseEntity<EmployerReadOnlyDTO> save(@RequestBody EmployerInsertDTO employerInsertDTO, BindingResult bindingResult)
+    public ResponseEntity<EmployerReadOnlyDTO> save(@Valid @RequestBody EmployerInsertDTO employerInsertDTO, BindingResult bindingResult)
             throws EntityNotFoundException, EntityAlreadyExistsException, DataValidationException {
 
         if (bindingResult.hasErrors()) {
