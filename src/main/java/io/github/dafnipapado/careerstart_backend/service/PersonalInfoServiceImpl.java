@@ -20,12 +20,12 @@ public class PersonalInfoServiceImpl implements IPersonalInfoService {
     @Override
     public Region getRegionById(Long regionId) throws EntityNotFoundException {
         return regionRepository.findById(regionId)
-                .orElseThrow(() -> new EntityNotFoundException("Region", "Region with id = '" + regionId + "' not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Region", "Region with id = {" + regionId + "} not found."));
     }
 
     @Override
     public PersonalInfo getPersonalInfoByEmail(String email) throws EntityNotFoundException {
         return personalInfoRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("PersonalInfo", "Personal Info with email = '" + email + "' not found."));
+                .orElseThrow(() -> new EntityNotFoundException("PersonalInfo", "Personal Info with email = {" + email + "} not found."));
     }
 }

@@ -41,13 +41,13 @@ public class EmployerServiceImpl implements IEmployerService{
 
         //checks for already existing vat, username and email
         if (employerRepository.findByVat(employerInsertDTO.vat()).isPresent()) {
-            throw new EntityAlreadyExistsException("Employer", "Employer with vat = '" + employerInsertDTO.vat() + "' already exists.");
+            throw new EntityAlreadyExistsException("Employer", "Employer with vat = {" + employerInsertDTO.vat() + "} already exists.");
         }
         if (userRepository.findByUsername(employerInsertDTO.userInsertDTO().username()).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with username = '" + employerInsertDTO.userInsertDTO().username() + "' already exists.");
+            throw new EntityAlreadyExistsException("User", "User with username = {" + employerInsertDTO.userInsertDTO().username() + "} already exists.");
         }
         if (personalInfoRepository.findByEmail(employerInsertDTO.personalInfoInsertDTO().email()).isPresent()) {
-            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = '" + employerInsertDTO.personalInfoInsertDTO().email() + "' already exists.");
+            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = {" + employerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
         }
 
         Employer employer = mapper.mapToEmployerEntity(employerInsertDTO);
@@ -69,7 +69,7 @@ public class EmployerServiceImpl implements IEmployerService{
 
         //save employer entity
         employerRepository.save(employer);
-        log.info("Employer '" + employerInsertDTO.brandName() + "' was saved successfully.");
+        log.info("Employer {" + employerInsertDTO.brandName() + "} was saved successfully.");
 
         return mapper.mapToEmployerReadOnlyDTO(employer);
     }
@@ -86,7 +86,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //-check for already existing vat, if changed
         String updatedVat = employerUpdateDTO.vat();
         if (!Objects.equals(updatedVat, employer.getVat()) && employerRepository.findByVat(updatedVat).isPresent()) {
-            throw new EntityAlreadyExistsException("Employer", "Employer with vat = '" + updatedVat + "' already exists.");
+            throw new EntityAlreadyExistsException("Employer", "Employer with vat = {" + updatedVat + "} already exists.");
         }
         employer.setVat(updatedVat);
         //-find and set the updated professionalId, if changed
@@ -100,7 +100,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //-check for already existing username, if changed
         String updatedUsername = employerUpdateDTO.userUpdateDTO().username();
         if (!Objects.equals(updatedUsername, employer.getUser().getUsername()) && userRepository.findByUsername(updatedUsername).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with username = '" + updatedUsername + "' already exists.");
+            throw new EntityAlreadyExistsException("User", "User with username = {" + updatedUsername + "} already exists.");
         }
         employer.getUser().setUsername(updatedUsername);
 
@@ -108,7 +108,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //-check for already existing email, if changed
         String updatedEmail = employerUpdateDTO.personalInfoUpdateDTO().email();
         if (!Objects.equals(updatedEmail, employer.getPersonalInfo().getEmail()) && personalInfoRepository.findByEmail(updatedEmail).isPresent()) {
-            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = '" + updatedEmail + "' already exists.");
+            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = {" + updatedEmail + "} already exists.");
         }
         employer.getPersonalInfo().setEmail(updatedEmail);
         employer.getPersonalInfo().setTelephoneNumber(employerUpdateDTO.personalInfoUpdateDTO().telephoneNumber());
@@ -140,12 +140,12 @@ public class EmployerServiceImpl implements IEmployerService{
     @Override
     public Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException {
         return employerRepository.findByUuid(uuid)
-                .orElseThrow(() -> new EntityNotFoundException("Employer", "Employer with uuid = '" + uuid + "' not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Employer", "Employer with uuid = {" + uuid + "} not found."));
     }
 
     @Override
     public ProfessionalField getProfessionalFieldById(Long professionalFieldId) throws EntityNotFoundException {
         return professionalFieldRepository.findById(professionalFieldId)
-                .orElseThrow(() -> new EntityNotFoundException("ProfessionalField", "Professional field with id = '" + professionalFieldId + "' not found."));
+                .orElseThrow(() -> new EntityNotFoundException("ProfessionalField", "Professional field with id = {" + professionalFieldId + "} not found."));
     }
 }
