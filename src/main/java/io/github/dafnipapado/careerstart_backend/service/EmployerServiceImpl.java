@@ -121,6 +121,8 @@ public class EmployerServiceImpl implements IEmployerService{
             updatedRegion.addPersonalInfo(employer.getPersonalInfo());
         }
 
+        log.info("Employer with uuid = {" + employer.getUuid() + "} was updated successfully.");
+
         return mapper.mapToEmployerReadOnlyDTO(employer);
     }
 
