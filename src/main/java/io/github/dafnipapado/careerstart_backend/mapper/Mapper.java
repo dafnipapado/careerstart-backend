@@ -1,7 +1,9 @@
 package io.github.dafnipapado.careerstart_backend.mapper;
 
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.personalInfo.PersonalInfoDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
 import io.github.dafnipapado.careerstart_backend.model.User;
@@ -25,6 +27,21 @@ public class Mapper {
 
     public EmployerReadOnlyDTO mapToEmployerReadOnlyDTO(Employer employer) {
         return new EmployerReadOnlyDTO(employer.getUuid().toString(), employer.getBrandName(), employer.getUser().getUsername());
+    }
+
+    public EmployerDetailsReadOnlyDTO mapToEmployerDetailsReadOnlyDTO(Employer employer) {
+        return new EmployerDetailsReadOnlyDTO(
+                employer.getUuid().toString(),
+                employer.getBrandName(),
+                employer.getWebsite(),
+                employer.getProfessionalField().getId(),
+                new PersonalInfoDetailsReadOnlyDTO(
+                    employer.getPersonalInfo().getEmail(),
+                    employer.getPersonalInfo().getTelephoneNumber(),
+                    employer.getPersonalInfo().getAddress(),
+                    employer.getPersonalInfo().getRegion().getId()
+                )
+        );
     }
 
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public interface EmployerRepository extends JpaRepository<Employer, Long> {
     Optional<Employer> findByUuid(UUID uuid);
+    Optional<Employer> findByUuidAndDeletedFalse(UUID uuid);
     Optional<Employer> findByVat(String vat);
 
 }

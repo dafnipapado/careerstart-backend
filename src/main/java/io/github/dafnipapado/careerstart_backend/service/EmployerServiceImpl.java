@@ -2,6 +2,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerUpdateDTO;
@@ -138,9 +139,30 @@ public class EmployerServiceImpl implements IEmployerService{
     }
 
     @Override
+    public EmployerDetailsReadOnlyDTO getSingleEmployer(UUID uuid) throws EntityNotFoundException {
+        Employer employer = getEmployerByUuid(uuid);
+        return mapper.mapToEmployerDetailsReadOnlyDTO(employer);
+    }
+
+    @Override
+    public EmployerDetailsReadOnlyDTO getSingleEmployerDeletedFalse(UUID uuid) throws EntityNotFoundException {
+        Employer employer = getEmployerByUuidDeletedFalse(uuid);
+        return mapper.mapToEmployerDetailsReadOnlyDTO(employer);
+    }
+
+
+    // === Utility service methods ===
+
+    @Override
     public Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException {
         return employerRepository.findByUuid(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("Employer", "Employer with uuid = {" + uuid + "} not found."));
+    }
+
+    @Override
+    public Employer getEmployerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException {
+        return employerRepository.findByUuidAndDeletedFalse(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("Employer", "Active employer with uuid = {" + uuid + "} not found."));
     }
 
     @Override

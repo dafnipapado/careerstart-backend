@@ -3,6 +3,7 @@ package io.github.dafnipapado.careerstart_backend.controller;
 import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerUpdateDTO;
@@ -70,5 +71,27 @@ public class EmployerController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(employerReadOnlyDTO);
+    }
+
+    @GetMapping(value = "/{uuid}")
+    public ResponseEntity<EmployerDetailsReadOnlyDTO> getSingleEmployer(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        EmployerDetailsReadOnlyDTO employerDetailsReadOnlyDTO = employerService.getSingleEmployer(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(employerDetailsReadOnlyDTO);
+    }
+
+    @GetMapping("/{uuid}/profile")
+    public ResponseEntity<EmployerDetailsReadOnlyDTO> getSingleEmployerDeletedFalse(@PathVariable UUID uuid)
+            throws EntityNotFoundException {
+
+        EmployerDetailsReadOnlyDTO employerDetailsReadOnlyDTO = employerService.getSingleEmployerDeletedFalse(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(employerDetailsReadOnlyDTO);
     }
 }
