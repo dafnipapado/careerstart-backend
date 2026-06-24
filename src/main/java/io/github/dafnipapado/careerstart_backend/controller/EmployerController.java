@@ -60,4 +60,15 @@ public class EmployerController {
                 .status(HttpStatus.OK)
                 .body(employerReadOnlyDTO);
     }
+
+    @PatchMapping(value = "/{uuid}")
+    public ResponseEntity<EmployerReadOnlyDTO> delete(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        EmployerReadOnlyDTO employerReadOnlyDTO = employerService.delete(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(employerReadOnlyDTO);
+    }
 }

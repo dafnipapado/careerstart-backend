@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface IEmployerService {
     EmployerReadOnlyDTO save(EmployerInsertDTO employerInsertDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
     EmployerReadOnlyDTO update(EmployerUpdateDTO employerUpdateDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
+    EmployerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException;
 
     Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException;
     ProfessionalField getProfessionalFieldById(Long professionalFieldId) throws EntityNotFoundException;

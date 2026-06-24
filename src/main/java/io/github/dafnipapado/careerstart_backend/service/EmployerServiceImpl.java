@@ -124,6 +124,20 @@ public class EmployerServiceImpl implements IEmployerService{
     }
 
     @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public EmployerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException {
+
+        Employer employer = getEmployerByUuid(uuid);
+        employer.softDelete();
+        employer.getUser().softDelete();
+        employer.getPersonalInfo().softDelete();
+
+        log.info("Employer with uuid = {" + uuid + "} was soft deleted successfully");
+
+        return mapper.mapToEmployerReadOnlyDTO(employer);
+    }
+
+    @Override
     public Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException {
         return employerRepository.findByUuid(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("Employer", "Employer with uuid = '" + uuid + "' not found."));
