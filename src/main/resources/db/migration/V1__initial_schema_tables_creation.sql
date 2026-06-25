@@ -125,10 +125,6 @@ CREATE TABLE attachments
     content_type VARCHAR(255) NULL,
     extension VARCHAR(50) NULL,
     personal_info_id BIGINT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
-    deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    deleted_at TIMESTAMPTZ NULL,
 
     CONSTRAINT pk_attachments PRIMARY KEY (id),
     CONSTRAINT uk_attachments_uuid UNIQUE (uuid),
