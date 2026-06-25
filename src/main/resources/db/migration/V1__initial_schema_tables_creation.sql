@@ -129,7 +129,7 @@ CREATE TABLE attachments
     CONSTRAINT pk_attachments PRIMARY KEY (id),
     CONSTRAINT uk_attachments_uuid UNIQUE (uuid),
     CONSTRAINT uk_attachments_saved_name UNIQUE (saved_name),
-    CONSTRAINT fk_personal_info_id FOREIGN KEY (personal_info_id) REFERENCES personal_info (id)
+    CONSTRAINT fk_attachments_personal_info_id FOREIGN KEY (personal_info_id) REFERENCES personal_info (id)
         ON DELETE CASCADE
 );
 
