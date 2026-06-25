@@ -143,12 +143,16 @@ public class EmployerServiceImpl implements IEmployerService{
     @Override
     public EmployerDetailsReadOnlyDTO getSingleEmployer(UUID uuid) throws EntityNotFoundException {
         Employer employer = getEmployerByUuid(uuid);
+
+        log.info("Employer with uuid = {" + uuid + "} was fetched successfully.");
         return mapper.mapToEmployerDetailsReadOnlyDTO(employer);
     }
 
     @Override
     public EmployerDetailsReadOnlyDTO getSingleEmployerDeletedFalse(UUID uuid) throws EntityNotFoundException {
         Employer employer = getEmployerByUuidDeletedFalse(uuid);
+
+        log.info("Active employer with uuid = {" + uuid + "} was fetched successfully.");
         return mapper.mapToEmployerDetailsReadOnlyDTO(employer);
     }
 
