@@ -1,8 +1,6 @@
 package io.github.dafnipapado.careerstart_backend.core;
 
-import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
-import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
-import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.*;
 import io.github.dafnipapado.careerstart_backend.dto.error.ErrorResponseDTO;
 import io.github.dafnipapado.careerstart_backend.dto.error.ValidationErrorResponseDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +46,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("Entity not found with message: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
+    }
+
+    @ExceptionHandler(FileHandlingException.class)
+    public ResponseEntity<ErrorResponseDTO> handleFileHandlingException(FileHandlingException e) {
+        log.warn("Processing of uploaded file failed with message: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
+    }
+
+    public ResponseEntity<ErrorResponseDTO> handleFileUploadException(FileUploadException e) {
+        log.warn("File upload failed with message: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 }
