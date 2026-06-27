@@ -175,47 +175,26 @@ public class EmployerServiceImpl implements IEmployerService{
     @Transactional(rollbackFor = {EntityNotFoundException.class, IOException.class})
     public void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, IOException {
         try {
-            log.error("IN THE SERVICE");
-            //get the employer by uuid
             Employer employer = getEmployerByUuid(uuid);
-            log.error("SERVICE - EMPLOYER WAS FETCHED BY UUID");
-
-            //get the related personal info, get the id and set it to attachment entity
             PersonalInfo personalInfo = employer.getPersonalInfo();
-            log.error("SERVICE - PERSONAL INFO WAS FETCHED BY EMPLOYER");
 
-
-            //call attachment service and set it to attachmentUploadDTO
             AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer", "picture");
 
-            log.error("SERVICE - ATTACHMENT WAS HANDLED");
-
+            //remove previous attachment from personalInfo's set, in case it existed
             if (!attachmentUploadDTO.existingFilePath().isEmpty()) {
-                //find attachment by filepath
                 Attachment existingAttachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath())
                         .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing picture for employer with uuid = {" + uuid + "} not found."));
                 personalInfo.removeAttachment(existingAttachment);
             }
 
-            log.error("SERVICE - CHECK FOR ALREADY EXISTING FILEPATH FINISHED");
-
-
-            //call the mapper
             Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
-            log.error("SERVICE - MAPPER DID ITS JOB");
 
             personalInfo.addAttachment(attachment);
-
-            log.error("SERVICE - ATTACHMENT WAS ADDED TO PERSONAL INFO");
-
             attachmentRepository.save(attachment);
-
-            log.error("SERVICE - ATTACHMENT WAS SAVED TO DATABASE");
 
         } catch (IOException e) {
             throw new FileUploadException("EmployerPicture", "Picture upload for employer with uuid = {" + uuid + "} failed.", e);
         }
-
     }
 
 
