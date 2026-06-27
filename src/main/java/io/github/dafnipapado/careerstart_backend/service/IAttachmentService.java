@@ -8,5 +8,5 @@ import java.io.IOException;
 import java.util.UUID;
 
 public interface IAttachmentService {
-    AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity, String fileType) throws FileHandlingException, IOException;
+    AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity, String fileType) throws FileHandlingException;
 }

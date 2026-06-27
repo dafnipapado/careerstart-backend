@@ -2,6 +2,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
@@ -22,7 +23,7 @@ public interface IEmployerService {
     EmployerDetailsReadOnlyDTO getSingleEmployer(UUID uuid) throws EntityNotFoundException;
     EmployerDetailsReadOnlyDTO getSingleEmployerDeletedFalse(UUID uuid) throws EntityNotFoundException;
 
-    void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, IOException;
+    void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
 
     Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException;
     Employer getEmployerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException;

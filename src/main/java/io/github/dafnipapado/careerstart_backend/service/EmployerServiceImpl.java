@@ -172,8 +172,8 @@ public class EmployerServiceImpl implements IEmployerService{
         retryFor = {IOException.class, HttpServerErrorException.class},
         backoff = @Backoff(delay = 2000L, multiplier = 2, maxDelay = 10000)
     )
-    @Transactional(rollbackFor = {EntityNotFoundException.class, IOException.class})
-    public void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, IOException {
+    @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
+    public void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
         try {
             Employer employer = getEmployerByUuid(uuid);
             PersonalInfo personalInfo = employer.getPersonalInfo();
