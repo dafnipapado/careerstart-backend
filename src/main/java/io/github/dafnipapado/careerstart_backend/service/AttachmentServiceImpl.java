@@ -54,8 +54,7 @@ public class AttachmentServiceImpl implements IAttachmentService {
             String contentType = tika.detect(file.getBytes());
             String extension = getFileExtension(originalFilename);
 
-            AttachmentUploadDTO attachmentUploadDTO = new AttachmentUploadDTO(uuid, originalFilename, savedName, filePath.toString(), contentType, extension, existingFilePath);
-            return attachmentUploadDTO;
+            return new AttachmentUploadDTO(uuid, originalFilename, savedName, filePath.toString(), contentType, extension, existingFilePath);
         } catch (IOException e) {
             throw new FileHandlingException("FileHandlingError", "File could not be processed successfully.", e);
         }
