@@ -2,22 +2,31 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
+import io.github.dafnipapado.careerstart_backend.model.Attachment;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
+import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
 import io.github.dafnipapado.careerstart_backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,8 +40,10 @@ public class EmployerServiceImpl implements IEmployerService{
     private final EmployerRepository employerRepository;
     private final UserRepository userRepository;
     private final PersonalInfoRepository personalInfoRepository;
+    private final AttachmentRepository attachmentRepository;
     private final IUserService userService;
     private final IPersonalInfoService personalInfoService;
+    private final IAttachmentService attachmentService;
     private final PasswordEncoder passwordEncoder;
     private final static Long employerRoleId = 2L;
 
@@ -154,6 +165,57 @@ public class EmployerServiceImpl implements IEmployerService{
 
         log.info("Active employer with uuid = {" + uuid + "} was fetched successfully.");
         return mapper.mapToEmployerDetailsReadOnlyDTO(employer);
+    }
+
+    @Override
+    @Retryable(
+        retryFor = {IOException.class, HttpServerErrorException.class},
+        backoff = @Backoff(delay = 2000L, multiplier = 2, maxDelay = 10000)
+    )
+    @Transactional(rollbackFor = {EntityNotFoundException.class, IOException.class})
+    public void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, IOException {
+        try {
+            log.error("IN THE SERVICE");
+            //get the employer by uuid
+            Employer employer = getEmployerByUuid(uuid);
+            log.error("SERVICE - EMPLOYER WAS FETCHED BY UUID");
+
+            //get the related personal info, get the id and set it to attachment entity
+            PersonalInfo personalInfo = employer.getPersonalInfo();
+            log.error("SERVICE - PERSONAL INFO WAS FETCHED BY EMPLOYER");
+
+
+            //call attachment service and set it to attachmentUploadDTO
+            AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer", "picture");
+
+            log.error("SERVICE - ATTACHMENT WAS HANDLED");
+
+            if (!attachmentUploadDTO.existingFilePath().isEmpty()) {
+                //find attachment by filepath
+                Attachment existingAttachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath())
+                        .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing picture for employer with uuid = {" + uuid + "} not found."));
+                personalInfo.removeAttachment(existingAttachment);
+            }
+
+            log.error("SERVICE - CHECK FOR ALREADY EXISTING FILEPATH FINISHED");
+
+
+            //call the mapper
+            Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
+            log.error("SERVICE - MAPPER DID ITS JOB");
+
+            personalInfo.addAttachment(attachment);
+
+            log.error("SERVICE - ATTACHMENT WAS ADDED TO PERSONAL INFO");
+
+            attachmentRepository.save(attachment);
+
+            log.error("SERVICE - ATTACHMENT WAS SAVED TO DATABASE");
+
+        } catch (IOException e) {
+            throw new FileUploadException("EmployerPicture", "Picture upload for employer with uuid = {" + uuid + "} failed.", e);
+        }
+
     }
 
 

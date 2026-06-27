@@ -1,9 +1,11 @@
 package io.github.dafnipapado.careerstart_backend.mapper;
 
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.personalInfo.PersonalInfoDetailsReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.model.Attachment;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
 import io.github.dafnipapado.careerstart_backend.model.User;
@@ -41,6 +43,19 @@ public class Mapper {
                     employer.getPersonalInfo().getAddress(),
                     employer.getPersonalInfo().getRegion().getId()
                 )
+        );
+    }
+
+    public Attachment mapToAttachmentEntity(AttachmentUploadDTO attachmentUploadDTO) {
+        return new Attachment(
+            null,
+            attachmentUploadDTO.uuid(),
+            attachmentUploadDTO.filename(),
+            attachmentUploadDTO.savedName(),
+            attachmentUploadDTO.filepath(),
+            attachmentUploadDTO.contentType(),
+            attachmentUploadDTO.extension(),
+            null
         );
     }
 
