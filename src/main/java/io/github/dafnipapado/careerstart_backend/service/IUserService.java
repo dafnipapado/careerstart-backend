@@ -4,5 +4,5 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundEx
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
 
 public interface IUserService {
-    Role getRoleById(Long roleId) throws EntityNotFoundException;
+    Role getRoleByName(String roleName) throws EntityNotFoundException;
 }

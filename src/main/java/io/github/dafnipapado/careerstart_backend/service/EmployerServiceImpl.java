@@ -45,7 +45,7 @@ public class EmployerServiceImpl implements IEmployerService{
     private final IPersonalInfoService personalInfoService;
     private final IAttachmentService attachmentService;
     private final PasswordEncoder passwordEncoder;
-    private final static Long employerRoleId = 2L;
+    private final static String EMPLOYER_ROLE_NAME = "EMPLOYER";
 
     @Override
     @Transactional(rollbackFor = {EntityNotFoundException.class, EntityAlreadyExistsException.class})
@@ -72,7 +72,7 @@ public class EmployerServiceImpl implements IEmployerService{
         ProfessionalField professionalField = getProfessionalFieldById(professionalFieldId);
         employer.setProfessionalField(professionalField);
 
-        Role role = userService.getRoleById(employerRoleId);
+        Role role = userService.getRoleByName(EMPLOYER_ROLE_NAME);
         employer.getUser().setRole(role);
 
         Long regionId = employerInsertDTO.personalInfoInsertDTO().regionId();
