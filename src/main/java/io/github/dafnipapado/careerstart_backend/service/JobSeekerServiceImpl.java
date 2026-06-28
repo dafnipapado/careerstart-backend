@@ -58,7 +58,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
 
         //save jobseeker entity
         jobSeekerRepository.save(jobSeeker);
-        log.info("Job seeker //{ {} {} //} was saved successfully.", jobSeekerInsertDTO.firstname(), jobSeekerInsertDTO.lastname());
+        log.info("Job seeker {{} {}} was saved successfully.", jobSeekerInsertDTO.firstname(), jobSeekerInsertDTO.lastname());
 
         return mapper.mapToJobSeekerReadOnlyDTO(jobSeeker);
     }
