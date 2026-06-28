@@ -4,11 +4,10 @@ import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUpload
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.personalInfo.PersonalInfoDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.model.Attachment;
-import io.github.dafnipapado.careerstart_backend.model.Employer;
-import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
-import io.github.dafnipapado.careerstart_backend.model.User;
+import io.github.dafnipapado.careerstart_backend.model.*;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -57,6 +56,23 @@ public class Mapper {
             attachmentUploadDTO.extension(),
             null
         );
+    }
+
+    public JobSeeker mapToJobSeekerEntity(JobSeekerInsertDTO jobSeekerInsertDTO) {
+        JobSeeker jobSeeker = new JobSeeker(null, null, jobSeekerInsertDTO.firstname(), jobSeekerInsertDTO.lastname(), null, null, null, null);
+        User user = new User();
+        user.setUsername(jobSeekerInsertDTO.userInsertDTO().username());
+        jobSeeker.setUser(user);
+        PersonalInfo personalInfo = new PersonalInfo();
+        personalInfo.setEmail(jobSeekerInsertDTO.personalInfoInsertDTO().email());
+        personalInfo.setTelephoneNumber(jobSeekerInsertDTO.personalInfoInsertDTO().telephoneNumber());
+        personalInfo.setAddress(jobSeekerInsertDTO.personalInfoInsertDTO().address());
+        jobSeeker.setPersonalInfo(personalInfo);
+        return jobSeeker;
+    }
+
+    public JobSeekerReadOnlyDTO mapToJobSeekerReadOnlyDTO(JobSeeker jobSeeker) {
+        return new JobSeekerReadOnlyDTO(jobSeeker.getUuid().toString(), jobSeeker.getFirstname(), jobSeeker.getLastname());
     }
 
 }
