@@ -4,6 +4,7 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
@@ -16,6 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +65,51 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         log.info("Job seeker {{} {}} was saved successfully.", jobSeekerInsertDTO.firstname(), jobSeekerInsertDTO.lastname());
 
         return mapper.mapToJobSeekerReadOnlyDTO(jobSeeker);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {EntityNotFoundException.class, EntityAlreadyExistsException.class})
+    public JobSeekerReadOnlyDTO update(JobSeekerUpdateDTO jobSeekerUpdateDTO) throws EntityNotFoundException, EntityAlreadyExistsException {
+
+        JobSeeker jobSeeker = getJobSeekerByUuid(jobSeekerUpdateDTO.uuid());
+
+        //set updated fields for jobseeker
+        jobSeeker.setFirstname(jobSeekerUpdateDTO.firstname());
+        jobSeeker.setLastname(jobSeekerUpdateDTO.lastname());
+
+        //set updated fields for user
+        //-check for already existing username, if changed
+        String updatedUsername = jobSeekerUpdateDTO.userUpdateDTO().username();
+        if (!Objects.equals(updatedUsername, jobSeeker.getUser().getUsername()) && userRepository.findByUsername(updatedUsername).isPresent()) {
+            throw new EntityAlreadyExistsException("User", "User with username = {" + updatedUsername + "} already exists.");
+        }
+        jobSeeker.getUser().setUsername(updatedUsername);
+
+        //set updated fields for personalInfo
+        //-check for already existing email, if changed
+        String updatedEmail = jobSeekerUpdateDTO.personalInfoUpdateDTO().email();
+        if (!Objects.equals(updatedEmail, jobSeeker.getPersonalInfo().getEmail()) && personalInfoRepository.findByEmail(updatedEmail).isPresent()) {
+            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = {" + updatedEmail + "} already exists.");
+        }
+        jobSeeker.getPersonalInfo().setEmail(updatedEmail);
+        jobSeeker.getPersonalInfo().setTelephoneNumber(jobSeekerUpdateDTO.personalInfoUpdateDTO().telephoneNumber());
+        jobSeeker.getPersonalInfo().setAddress(jobSeekerUpdateDTO.personalInfoUpdateDTO().address());
+        //-find and set the updated region, if changed
+        if (!Objects.equals(jobSeekerUpdateDTO.personalInfoUpdateDTO().regionId(), jobSeeker.getPersonalInfo().getRegion().getId())) {
+            Region updatedRegion = personalInfoService.getRegionById(jobSeekerUpdateDTO.personalInfoUpdateDTO().regionId());
+            jobSeeker.getPersonalInfo().getRegion().removePersonalInfo(jobSeeker.getPersonalInfo());
+            updatedRegion.addPersonalInfo(jobSeeker.getPersonalInfo());
+        }
+
+        log.info("Job Seeker with uuid = {" + jobSeeker.getUuid() + "} was updated successfully.");
+
+        return mapper.mapToJobSeekerReadOnlyDTO(jobSeeker);
+    }
+
+    @Override
+    public JobSeeker getJobSeekerByUuid(UUID uuid) throws EntityNotFoundException {
+        return jobSeekerRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("JobSeeker", "Job Seeker with uuid = {" + uuid + "} not found."));
     }
 
 }

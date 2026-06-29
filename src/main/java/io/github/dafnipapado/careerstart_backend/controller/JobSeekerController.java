@@ -5,18 +5,18 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.service.IJobSeekerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,6 +43,21 @@ public class JobSeekerController {
 
         return ResponseEntity
                 .created(location)
+                .body(jobSeekerReadOnlyDTO);
+    }
+
+    @PutMapping(value = "/{uuid}")
+    public ResponseEntity<JobSeekerReadOnlyDTO> update(@PathVariable("uuid") UUID uuid, @Valid @RequestBody JobSeekerUpdateDTO jobSeekerUpdateDTO, BindingResult bindingResult)
+            throws EntityNotFoundException, EntityAlreadyExistsException, DataValidationException {
+
+        if (bindingResult.hasErrors()) {
+            throw new DataValidationException("JobSeeker", "Job seeker data validation failed during update.", bindingResult);
+        }
+
+        JobSeekerReadOnlyDTO jobSeekerReadOnlyDTO = jobSeekerService.update(jobSeekerUpdateDTO);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(jobSeekerReadOnlyDTO);
     }
 
