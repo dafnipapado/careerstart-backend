@@ -2,6 +2,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerUpdateDTO;
@@ -121,9 +122,31 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     }
 
     @Override
+    public JobSeekerDetailsReadOnlyDTO getSingleJobSeeker(UUID uuid) throws EntityNotFoundException {
+        JobSeeker jobSeeker = getJobSeekerByUuid(uuid);
+
+        log.info("Job seeker with uuid = {" + uuid + "} was fetched successfully.");
+        return mapper.mapToJobSeekerDetailsReadOnlyDTO(jobSeeker);
+    }
+
+    @Override
+    public JobSeekerDetailsReadOnlyDTO getSingleJobSeekerDeletedFalse(UUID uuid) throws EntityNotFoundException {
+        JobSeeker jobSeeker = getJobSeekerByUuidDeletedFalse(uuid);
+
+        log.info("Active job seeker with uuid = {" + uuid + "} was fetched successfully.");
+        return mapper.mapToJobSeekerDetailsReadOnlyDTO(jobSeeker);
+    }
+
+    @Override
     public JobSeeker getJobSeekerByUuid(UUID uuid) throws EntityNotFoundException {
         return jobSeekerRepository.findByUuid(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("JobSeeker", "Job Seeker with uuid = {" + uuid + "} not found."));
+    }
+
+    @Override
+    public JobSeeker getJobSeekerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException {
+        return jobSeekerRepository.findByUuidAndDeletedFalse(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("JobSeeker", "Active job seeker with uuid = {" + uuid + "} not found."));
     }
 
 }

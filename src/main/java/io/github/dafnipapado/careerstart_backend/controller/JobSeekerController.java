@@ -3,6 +3,7 @@ package io.github.dafnipapado.careerstart_backend.controller;
 import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerUpdateDTO;
@@ -70,6 +71,28 @@ public class JobSeekerController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(jobSeekerReadOnlyDTO);
+    }
+
+    @GetMapping(value = "/{uuid}")
+    public ResponseEntity<JobSeekerDetailsReadOnlyDTO> getSingleJobSeeker(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        JobSeekerDetailsReadOnlyDTO jobSeekerDetailsReadOnlyDTO = jobSeekerService.getSingleJobSeeker(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobSeekerDetailsReadOnlyDTO);
+    }
+
+    @GetMapping("/{uuid}/profile")
+    public ResponseEntity<JobSeekerDetailsReadOnlyDTO> getSingleJobSeekerDeletedFalse(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        JobSeekerDetailsReadOnlyDTO jobSeekerDetailsReadOnlyDTO = jobSeekerService.getSingleJobSeekerDeletedFalse(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobSeekerDetailsReadOnlyDTO);
     }
 
 }
