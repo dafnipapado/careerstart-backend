@@ -107,6 +107,20 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     }
 
     @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public JobSeekerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException {
+
+        JobSeeker jobSeeker = getJobSeekerByUuid(uuid);
+        jobSeeker.softDelete();
+        jobSeeker.getUser().softDelete();
+        jobSeeker.getPersonalInfo().softDelete();
+
+        log.info("Job Seeker with uuid = {" + uuid + "} was soft deleted successfully.");
+
+        return mapper.mapToJobSeekerReadOnlyDTO(jobSeeker);
+    }
+
+    @Override
     public JobSeeker getJobSeekerByUuid(UUID uuid) throws EntityNotFoundException {
         return jobSeekerRepository.findByUuid(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("JobSeeker", "Job Seeker with uuid = {" + uuid + "} not found."));

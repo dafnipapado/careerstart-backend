@@ -13,6 +13,7 @@ public interface IJobSeekerService {
 
     JobSeekerReadOnlyDTO save(JobSeekerInsertDTO jobSeekerInsertDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
     JobSeekerReadOnlyDTO update(JobSeekerUpdateDTO jobSeekerUpdateDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
+    JobSeekerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException;
 
     JobSeeker getJobSeekerByUuid(UUID uuid) throws EntityNotFoundException;
 }
