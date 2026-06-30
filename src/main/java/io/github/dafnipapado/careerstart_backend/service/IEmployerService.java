@@ -12,7 +12,6 @@ import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public interface IEmployerService {
@@ -23,7 +22,7 @@ public interface IEmployerService {
     EmployerDetailsReadOnlyDTO getSingleEmployer(UUID uuid) throws EntityNotFoundException;
     EmployerDetailsReadOnlyDTO getSingleEmployerDeletedFalse(UUID uuid) throws EntityNotFoundException;
 
-    void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
+    void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
 
     Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException;
     Employer getEmployerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException;

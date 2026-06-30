@@ -173,18 +173,19 @@ public class EmployerServiceImpl implements IEmployerService{
         backoff = @Backoff(delay = 2000L, multiplier = 2, maxDelay = 10000)
     )
     @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
-    public void uploadPicture(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
+    public void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
         try {
             Employer employer = getEmployerByUuid(uuid);
             PersonalInfo personalInfo = employer.getPersonalInfo();
 
-            AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer", "picture");
+            AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer");
 
-            //remove previous attachment from personalInfo's set, in case it existed
-            if (!attachmentUploadDTO.existingFilePath().isEmpty()) {
-                Attachment existingAttachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath())
-                        .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing picture for employer with uuid = {" + uuid + "} not found."));
+            //remove previous attachment from personalInfo's set and delete from database, in case it existed
+            if (attachmentUploadDTO.existingFilePath() != null) {
+                Attachment existingAttachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath().toString())
+                        .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing attachment for employer with uuid = {" + uuid + "} not found."));
                 personalInfo.removeAttachment(existingAttachment);
+                attachmentRepository.delete(existingAttachment);
             }
 
             Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
@@ -192,8 +193,10 @@ public class EmployerServiceImpl implements IEmployerService{
             personalInfo.addAttachment(attachment);
             attachmentRepository.save(attachment);
 
+            log.info("Attachment for employer with uuid = {" + uuid + "} was uploaded successfully.");
+
         } catch (IOException e) {
-            throw new FileUploadException("EmployerPicture", "Picture upload for employer with uuid = {" + uuid + "} failed.", e);
+            throw new FileUploadException("EmployerAttachment", "Attachment upload for employer with uuid = {" + uuid + "} failed.", e);
         }
     }
 

@@ -97,11 +97,11 @@ public class EmployerController {
                 .body(employerDetailsReadOnlyDTO);
     }
 
-    @PostMapping("/{uuid}/picture")
+    @PostMapping("/{uuid}/avatar")
     public ResponseEntity<Void> uploadPicture(@PathVariable UUID uuid, @RequestParam("picture") MultipartFile file)
             throws EntityNotFoundException, IOException {
 
-        employerService.uploadPicture(uuid, file);
+        employerService.uploadAttachment(uuid, file);
 
         return ResponseEntity.noContent().build();
     }
