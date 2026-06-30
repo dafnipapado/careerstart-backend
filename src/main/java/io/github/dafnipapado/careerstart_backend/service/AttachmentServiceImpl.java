@@ -26,7 +26,7 @@ public class AttachmentServiceImpl implements IAttachmentService {
     private final Tika tika;
 
     @Override
-    public AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity, String fileType) throws FileHandlingException {
+    public AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity) throws FileHandlingException {
         try {
             //generate saved name from uuid and original filename
             String originalFilename = file.getOriginalFilename();
@@ -37,21 +37,31 @@ public class AttachmentServiceImpl implements IAttachmentService {
                 savedName += "_" + filename;
             }
 
+            //get the file's contentType with tika
+            String fileType = "";
+            String contentType = tika.detect(file.getBytes());
+            if (contentType.startsWith("image")) {
+                fileType = "picture";
+            } else {
+                fileType = "document";
+            }
+
             //create the directory and filepath
             String directory = uploadDirectory + entity + "/" + actorUuid + "/" + fileType + "/";
             Path filePath = Paths.get(directory + savedName);
-            //-check if an attachment already exists in the directory
-            String existingFilePath = "";
-            if (Files.exists(filePath.getParent()) && !Files.list(filePath.getParent()).findAny().isEmpty()) {
-                existingFilePath = filePath.toString();
-                Files.delete(filePath);
-
+            Path directoryPath = Paths.get(directory);
+            //-delete the already existing filepath, if present
+            Path existingFilePath = null;
+            if (Files.exists(directoryPath) && Files.list(directoryPath).findAny().isPresent()) {
+                existingFilePath = Files.list(directoryPath).findFirst().orElse(null);
+                if (existingFilePath != null) Files.delete(existingFilePath);
+            } else {
+                Files.createDirectories(filePath.getParent());
             }
-            Files.createDirectories(filePath.getParent());
+
             file.transferTo(filePath);
 
-            //get the content type and extension of the file
-            String contentType = tika.detect(file.getBytes());
+            //get the file extension
             String extension = getFileExtension(originalFilename);
 
             return new AttachmentUploadDTO(uuid, originalFilename, savedName, filePath.toString(), contentType, extension, existingFilePath);
