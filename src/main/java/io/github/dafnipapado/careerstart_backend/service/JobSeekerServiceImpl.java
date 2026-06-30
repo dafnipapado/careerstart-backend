@@ -2,23 +2,33 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
+import io.github.dafnipapado.careerstart_backend.model.Attachment;
 import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
+import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
+import io.github.dafnipapado.careerstart_backend.repository.AttachmentRepository;
 import io.github.dafnipapado.careerstart_backend.repository.JobSeekerRepository;
 import io.github.dafnipapado.careerstart_backend.repository.PersonalInfoRepository;
 import io.github.dafnipapado.careerstart_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,9 +39,11 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
 
     private final IUserService userService;
     private final IPersonalInfoService personalInfoService;
+    private final IAttachmentService attachmentService;
     private final JobSeekerRepository jobSeekerRepository;
     private final UserRepository userRepository;
     private final PersonalInfoRepository personalInfoRepository;
+    private final AttachmentRepository attachmentRepository;
     private final Mapper mapper;
     private final PasswordEncoder passwordEncoder;
     private static final String JOB_SEEKER_ROLE_NAME = "JOB_SEEKER";
@@ -135,6 +147,38 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
 
         log.info("Active job seeker with uuid = {" + uuid + "} was fetched successfully.");
         return mapper.mapToJobSeekerDetailsReadOnlyDTO(jobSeeker);
+    }
+
+    @Override
+    @Retryable(
+        retryFor = {IOException.class, HttpServerErrorException.class},
+        backoff = @Backoff(delay = 2000L, multiplier = 2, maxDelay = 10000)
+    )
+    @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
+    public void uploadDocument(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
+        try {
+            JobSeeker jobSeeker = getJobSeekerByUuid(uuid);
+            PersonalInfo personalInfo = jobSeeker.getPersonalInfo();
+
+            AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "jobseeker");
+
+            if (attachmentUploadDTO.existingFilePath() != null) {
+                Attachment attachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath().toString())
+                        .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing attachment in filepath = {"
+                                + attachmentUploadDTO.existingFilePath().toString() + "} for job seeker with uuid = {" + uuid + "} not found."));
+                personalInfo.removeAttachment(attachment);
+                attachmentRepository.delete(attachment);
+            }
+
+            Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
+
+            personalInfo.addAttachment(attachment);
+            attachmentRepository.save(attachment);
+
+            log.info("Attachment for job seeker with uuid = {" + uuid + "} was uploaded successfully.");
+        } catch (IOException e) {
+            throw new FileUploadException("JobSeekerAttachment", "Attachment upload for job seeker with uuid = {" + uuid + "} failed.", e);
+        }
     }
 
     @Override

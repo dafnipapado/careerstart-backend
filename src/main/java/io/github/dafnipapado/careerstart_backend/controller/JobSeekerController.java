@@ -3,6 +3,7 @@ package io.github.dafnipapado.careerstart_backend.controller;
 import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -95,4 +97,21 @@ public class JobSeekerController {
                 .body(jobSeekerDetailsReadOnlyDTO);
     }
 
+    @PostMapping("/{uuid}/avatar")
+    public ResponseEntity<Void> uploadPictureFile(@PathVariable("uuid") UUID uuid, @RequestParam("picture") MultipartFile file)
+            throws EntityNotFoundException, FileUploadException {
+
+        jobSeekerService.uploadDocument(uuid, file);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{uuid}/cv-file")
+    public ResponseEntity<Void> uploadCvFile(@PathVariable("uuid") UUID uuid, @RequestParam("cv") MultipartFile file)
+            throws EntityNotFoundException, FileUploadException {
+
+        jobSeekerService.uploadDocument(uuid, file);
+
+        return ResponseEntity.noContent().build();
+    }
 }
