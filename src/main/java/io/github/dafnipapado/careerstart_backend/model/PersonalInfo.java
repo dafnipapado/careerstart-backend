@@ -56,7 +56,6 @@ public class PersonalInfo extends AbstractEntity{
 
     public void removeAttachment(Attachment attachment) {
         attachments.remove(attachment);
-        attachment.setPersonalInfo(null);
     }
 
     @Override
