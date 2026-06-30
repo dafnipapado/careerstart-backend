@@ -42,11 +42,6 @@ public class Attachment {
     @JoinColumn(name = "personal_info_id", nullable = false)
     private PersonalInfo personalInfo;
 
-    @PrePersist
-    public void uuidInitialize() {
-        this.uuid = UUID.randomUUID();
-    }
-
     @Override
     public final boolean equals(Object o) {
         if (!(o instanceof Attachment that)) return false;
