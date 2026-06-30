@@ -1,5 +1,6 @@
 package io.github.dafnipapado.careerstart_backend.dto.attachment;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
 public record AttachmentUploadDTO(
@@ -9,6 +10,6 @@ public record AttachmentUploadDTO(
         String filepath,
         String contentType,
         String extension,
-        String existingFilePath
+        Path existingFilePath
 ) {
 }
