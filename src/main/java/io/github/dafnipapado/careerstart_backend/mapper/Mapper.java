@@ -4,6 +4,8 @@ import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUpload
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingInsertDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
@@ -88,6 +90,14 @@ public class Mapper {
                         jobSeeker.getPersonalInfo().getRegion().getId()
                 )
         );
+    }
+
+    public JobListing mapToJobListingEntity(JobListingInsertDTO jobListingInsertDTO) {
+         return new JobListing(null, null, jobListingInsertDTO.title(), jobListingInsertDTO.description(), null, null, null, null);
+    }
+
+    public JobListingReadOnlyDTO mapToJobListingReadOnlyDTO(JobListing jobListing) {
+        return new JobListingReadOnlyDTO(jobListing.getUuid().toString(), jobListing.getTitle(), jobListing.getEmployer().getBrandName());
     }
 
 }
