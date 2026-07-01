@@ -37,7 +37,6 @@ public class Region {
 
     public void removeJobListing(JobListing jobListing){
         jobListings.remove(jobListing);
-        jobListing.setRegion(null);
     }
 
     public void addPersonalInfo(PersonalInfo personalInfo){

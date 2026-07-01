@@ -5,7 +5,6 @@ import io.github.dafnipapado.careerstart_backend.model.JobListing;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +36,6 @@ public class ProfessionalField {
 
     public void removeJobListing(JobListing jobListing) {
         jobListings.remove(jobListing);
-        jobListing.setProfessionalField(null);
     }
 
     public void addEmployer(Employer employer){
@@ -45,7 +43,7 @@ public class ProfessionalField {
         employer.setProfessionalField(this);
     }
 
-    public void remove(Employer employer){
+    public void removeEmployer(Employer employer){
         employers.remove(employer);
         employer.setProfessionalField(null);
     }
