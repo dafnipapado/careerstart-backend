@@ -3,6 +3,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.JobListing;
@@ -16,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +51,32 @@ public class JobListingServiceImpl implements IJobListingService{
         log.info("Job listing {{}} with uuid = {{}} by employer = {{}} was saved successfully.", jobListing.getTitle(), jobListing.getUuid(), employer.getBrandName());
 
         return mapper.mapToJobListingReadOnlyDTO(jobListing);
+    }
+
+    @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public JobListingReadOnlyDTO update(JobListingUpdateDTO jobListingUpdateDTO) throws EntityNotFoundException {
+        JobListing jobListing = getJobListingByUuid(jobListingUpdateDTO.uuid());
+        jobListing.setTitle(jobListingUpdateDTO.title());
+        jobListing.setDescription(jobListingUpdateDTO.description());
+        if (!Objects.equals(jobListingUpdateDTO.professionalFieldId(), jobListing.getProfessionalField().getId())) {
+            ProfessionalField previousProfessionalField = employerService.getProfessionalFieldById(jobListingUpdateDTO.professionalFieldId());
+            previousProfessionalField.removeJobListing(jobListing);
+            jobListing.getProfessionalField().addJobListing(jobListing);
+        }
+        if (!Objects.equals(jobListingUpdateDTO.regionId(), jobListing.getRegion().getId())) {
+            Region previousRegion = personalInfoService.getRegionById(jobListingUpdateDTO.regionId());
+            previousRegion.removeJobListing(jobListing);
+            jobListing.getRegion().addJobListing(jobListing);
+        }
+
+        log.info("Job listing {{}} with uuid = {{}} was updated successfully.", jobListing.getTitle(), jobListing.getUuid());
+        return mapper.mapToJobListingReadOnlyDTO(jobListing);
+    }
+
+    @Override
+    public JobListing getJobListingByUuid(UUID uuid) throws EntityNotFoundException {
+        return jobListingRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("JobListing", "Job listing with uuid = {" + uuid + "} not found."));
     }
 }
