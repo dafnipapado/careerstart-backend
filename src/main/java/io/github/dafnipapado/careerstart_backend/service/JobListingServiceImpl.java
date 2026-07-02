@@ -75,6 +75,17 @@ public class JobListingServiceImpl implements IJobListingService{
     }
 
     @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public JobListingReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException {
+        JobListing jobListing = getJobListingByUuid(uuid);
+        jobListing.softDelete();
+
+        log.info("Job listing with uuid = {" + uuid + "} was soft deleted successfully.");
+
+        return mapper.mapToJobListingReadOnlyDTO(jobListing);
+    }
+
+    @Override
     public JobListing getJobListingByUuid(UUID uuid) throws EntityNotFoundException {
         return jobListingRepository.findByUuid(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("JobListing", "Job listing with uuid = {" + uuid + "} not found."));

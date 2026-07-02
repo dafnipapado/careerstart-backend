@@ -11,5 +11,7 @@ import java.util.UUID;
 public interface IJobListingService {
     JobListingReadOnlyDTO save(JobListingInsertDTO jobListingInsertDTO) throws EntityNotFoundException;
     JobListingReadOnlyDTO update(JobListingUpdateDTO jobListingUpdateDTO) throws EntityNotFoundException;
+    JobListingReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException;
+
     JobListing getJobListingByUuid(UUID uuid) throws EntityNotFoundException;
 }

@@ -59,4 +59,15 @@ public class JobListingController {
                 .status(HttpStatus.OK)
                 .body(jobListingReadOnlyDTO);
     }
+
+    @PatchMapping(value = "/{uuid}")
+    public ResponseEntity<JobListingReadOnlyDTO> delete(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        JobListingReadOnlyDTO jobListingReadOnlyDTO = jobListingService.delete(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobListingReadOnlyDTO);
+    }
 }
