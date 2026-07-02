@@ -3,13 +3,12 @@ package io.github.dafnipapado.careerstart_backend.controller;
 import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerUpdateDTO;
+import io.github.dafnipapado.careerstart_backend.dto.employer.*;
+import io.github.dafnipapado.careerstart_backend.filters.EmployerFilters;
 import io.github.dafnipapado.careerstart_backend.service.IEmployerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -104,5 +103,15 @@ public class EmployerController {
         employerService.uploadAttachment(uuid, file);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<EmployerSummaryReadOnlyDTO>> getPaginatedFilteredEmployers(@ModelAttribute EmployerFilters employerFilters)
+            throws EntityNotFoundException {
+
+        Page<EmployerSummaryReadOnlyDTO> pageDTO = employerService.getPaginatedFilteredEmployers(employerFilters);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(pageDTO);
     }
 }

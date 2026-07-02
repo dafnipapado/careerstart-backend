@@ -4,10 +4,8 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerUpdateDTO;
+import io.github.dafnipapado.careerstart_backend.dto.employer.*;
+import io.github.dafnipapado.careerstart_backend.filters.EmployerFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.Attachment;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
@@ -16,8 +14,12 @@ import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalF
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
 import io.github.dafnipapado.careerstart_backend.repository.*;
+import io.github.dafnipapado.careerstart_backend.specification.EmployerSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -104,7 +107,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //-find and set the updated professionalId, if changed
         if (!Objects.equals(employerUpdateDTO.professionalFieldId(), employer.getProfessionalField().getId())) {
             ProfessionalField updatedProfessionalField = getProfessionalFieldById(employerUpdateDTO.professionalFieldId());
-            employer.getProfessionalField().remove(employer);
+            employer.getProfessionalField().removeEmployer(employer);
             updatedProfessionalField.addEmployer(employer);
         }
 
@@ -198,6 +201,32 @@ public class EmployerServiceImpl implements IEmployerService{
         } catch (IOException e) {
             throw new FileUploadException("EmployerAttachment", "Attachment upload for employer with uuid = {" + uuid + "} failed.", e);
         }
+    }
+
+    @Override
+    public Page<EmployerSummaryReadOnlyDTO> getPaginatedFilteredEmployers(EmployerFilters employerFilters) throws EntityNotFoundException {
+        if (employerFilters.getUuid() != null) {
+            Employer employer = getEmployerByUuid(employerFilters.getUuid());
+            return getSingleResultPage(employerFilters.getPageable(), employer);
+        }
+        if (employerFilters.getVat() != null) {
+            Employer employer = employerRepository.findByVat(employerFilters.getVat())
+                    .orElseThrow(() -> new EntityNotFoundException("Employer", "Employer with vat = {" + employerFilters.getVat() + "} not found."));
+            return getSingleResultPage(employerFilters.getPageable(), employer);
+        }
+
+        var filtered = employerRepository.findAll(EmployerSpecification.build(employerFilters), employerFilters.getPageable());
+
+        log.info("Filtered {} employers.", filtered.getNumberOfElements());
+        return filtered.map(mapper::mapToEmployerSummaryReadOnlyDTO);
+    }
+
+    private Page<EmployerSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, Employer employer) {
+        return new PageImpl<>(
+                List.of(mapper.mapToEmployerSummaryReadOnlyDTO(employer)),
+                pageable,
+                1
+        );
     }
 
 

@@ -35,6 +35,16 @@ public class Mapper {
         return new EmployerReadOnlyDTO(employer.getUuid().toString(), employer.getBrandName(), employer.getUser().getUsername());
     }
 
+    public EmployerSummaryReadOnlyDTO mapToEmployerSummaryReadOnlyDTO(Employer employer) {
+        return new EmployerSummaryReadOnlyDTO(
+                employer.getUuid().toString(),
+                employer.getBrandName(),
+                employer.getWebsite(),
+                employer.getProfessionalField().getName(),
+                employer.getPersonalInfo().getRegion().getName()
+        );
+    }
+
     public EmployerDetailsReadOnlyDTO mapToEmployerDetailsReadOnlyDTO(Employer employer) {
         return new EmployerDetailsReadOnlyDTO(
                 employer.getUuid().toString(),
@@ -108,13 +118,7 @@ public class Mapper {
             jobListing.getUuid().toString(),
             jobListing.getTitle(),
             jobListing.getDescription(),
-            new EmployerSummaryReadOnlyDTO(
-                employer.getUuid().toString(),
-                employer.getBrandName(),
-                employer.getWebsite(),
-                employer.getProfessionalField().getName(),
-                employer.getPersonalInfo().getRegion().getName()
-            )
+            mapToEmployerSummaryReadOnlyDTO(employer)
         );
     }
 
