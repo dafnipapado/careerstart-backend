@@ -75,7 +75,7 @@ public class JobSeekerController {
                 .body(jobSeekerReadOnlyDTO);
     }
 
-    @GetMapping(value = "/{uuid}")
+    @GetMapping(value = "/{uuid}/view")
     public ResponseEntity<JobSeekerDetailsReadOnlyDTO> getSingleJobSeeker(@PathVariable("uuid") UUID uuid)
             throws EntityNotFoundException {
 
@@ -86,7 +86,7 @@ public class JobSeekerController {
                 .body(jobSeekerDetailsReadOnlyDTO);
     }
 
-    @GetMapping("/{uuid}/profile")
+    @GetMapping("/{uuid}")
     public ResponseEntity<JobSeekerDetailsReadOnlyDTO> getSingleJobSeekerDeletedFalse(@PathVariable("uuid") UUID uuid)
             throws EntityNotFoundException {
 

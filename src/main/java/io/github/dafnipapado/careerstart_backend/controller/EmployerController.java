@@ -75,7 +75,7 @@ public class EmployerController {
                 .body(employerReadOnlyDTO);
     }
 
-    @GetMapping(value = "/{uuid}")
+    @GetMapping(value = "/{uuid}/view")
     public ResponseEntity<EmployerDetailsReadOnlyDTO> getSingleEmployer(@PathVariable("uuid") UUID uuid)
             throws EntityNotFoundException {
 
@@ -86,7 +86,7 @@ public class EmployerController {
                 .body(employerDetailsReadOnlyDTO);
     }
 
-    @GetMapping("/{uuid}/profile")
+    @GetMapping("/{uuid}")
     public ResponseEntity<EmployerDetailsReadOnlyDTO> getSingleEmployerDeletedFalse(@PathVariable UUID uuid)
             throws EntityNotFoundException {
 
