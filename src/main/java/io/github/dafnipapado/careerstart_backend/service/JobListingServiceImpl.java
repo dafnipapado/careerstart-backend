@@ -1,6 +1,7 @@
 package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingUpdateDTO;
@@ -86,8 +87,30 @@ public class JobListingServiceImpl implements IJobListingService{
     }
 
     @Override
+    public JobListingDetailsReadOnlyDTO getSingleJobListing(UUID uuid) throws EntityNotFoundException {
+        JobListing jobListing = getJobListingByUuid(uuid);
+
+        log.info("Job listing with uuid = {" + uuid + "} was fetched successfully.");
+        return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing);
+    }
+
+    @Override
+    public JobListingDetailsReadOnlyDTO getSingleJobListingDeletedFalse(UUID uuid) throws EntityNotFoundException {
+        JobListing jobListing = getJobListingByUuidDeletedFalse(uuid);
+
+        log.info("Active job listing with uuid = {" + uuid + "} was fetched successfully.");
+        return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing);
+    }
+
+    @Override
     public JobListing getJobListingByUuid(UUID uuid) throws EntityNotFoundException {
         return jobListingRepository.findByUuid(uuid)
                 .orElseThrow(() -> new EntityNotFoundException("JobListing", "Job listing with uuid = {" + uuid + "} not found."));
+    }
+
+    @Override
+    public JobListing getJobListingByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException {
+        return jobListingRepository.findByUuidAndDeletedFalse(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("JobListing", "Active job listing with uuid = {" + uuid + "} not found."));
     }
 }

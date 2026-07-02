@@ -2,6 +2,9 @@ package io.github.dafnipapado.careerstart_backend.controller;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingUpdateDTO;
@@ -69,5 +72,27 @@ public class JobListingController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(jobListingReadOnlyDTO);
+    }
+
+    @GetMapping(value = "/{uuid}/view")
+    public ResponseEntity<JobListingDetailsReadOnlyDTO> getSingleJobListing(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        JobListingDetailsReadOnlyDTO jobListingDetailsReadOnlyDTO = jobListingService.getSingleJobListing(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobListingDetailsReadOnlyDTO);
+    }
+
+    @GetMapping("/{uuid}")
+    public ResponseEntity<JobListingDetailsReadOnlyDTO> getSingleJobListingDeletedFalse(@PathVariable UUID uuid)
+            throws EntityNotFoundException {
+
+        JobListingDetailsReadOnlyDTO jobListingDetailsReadOnlyDTO = jobListingService.getSingleJobListingDeletedFalse(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobListingDetailsReadOnlyDTO);
     }
 }

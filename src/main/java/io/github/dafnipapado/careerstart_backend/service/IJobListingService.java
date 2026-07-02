@@ -1,6 +1,7 @@
 package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingUpdateDTO;
@@ -13,5 +14,10 @@ public interface IJobListingService {
     JobListingReadOnlyDTO update(JobListingUpdateDTO jobListingUpdateDTO) throws EntityNotFoundException;
     JobListingReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException;
 
+    JobListingDetailsReadOnlyDTO getSingleJobListing(UUID uuid) throws EntityNotFoundException;
+    JobListingDetailsReadOnlyDTO getSingleJobListingDeletedFalse(UUID uuid) throws EntityNotFoundException;
+
     JobListing getJobListingByUuid(UUID uuid) throws EntityNotFoundException;
+    JobListing getJobListingByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException;
+
 }
