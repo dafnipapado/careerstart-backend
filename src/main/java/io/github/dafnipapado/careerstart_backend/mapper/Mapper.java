@@ -11,6 +11,7 @@ import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadO
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerSummaryReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.personalInfo.PersonalInfoDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.model.*;
 import org.springframework.stereotype.Component;
@@ -88,6 +89,10 @@ public class Mapper {
 
     public JobSeekerReadOnlyDTO mapToJobSeekerReadOnlyDTO(JobSeeker jobSeeker) {
         return new JobSeekerReadOnlyDTO(jobSeeker.getUuid().toString(), jobSeeker.getFirstname(), jobSeeker.getLastname());
+    }
+
+    public JobSeekerSummaryReadOnlyDTO mapToJobSeekerSummaryReadOnlyDTO(JobSeeker jobSeeker) {
+        return new JobSeekerSummaryReadOnlyDTO(jobSeeker.getUuid().toString(), jobSeeker.getFirstname(), jobSeeker.getLastname(), jobSeeker.getPersonalInfo().getEmail());
     }
 
     public JobSeekerDetailsReadOnlyDTO mapToJobSeekerDetailsReadOnlyDTO(JobSeeker jobSeeker) {

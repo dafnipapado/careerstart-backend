@@ -4,12 +4,12 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerUpdateDTO;
+import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerSummaryReadOnlyDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.*;
+import io.github.dafnipapado.careerstart_backend.filters.JobSeekerFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.Attachment;
+import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
@@ -18,8 +18,13 @@ import io.github.dafnipapado.careerstart_backend.repository.AttachmentRepository
 import io.github.dafnipapado.careerstart_backend.repository.JobSeekerRepository;
 import io.github.dafnipapado.careerstart_backend.repository.PersonalInfoRepository;
 import io.github.dafnipapado.careerstart_backend.repository.UserRepository;
+import io.github.dafnipapado.careerstart_backend.specification.EmployerSpecification;
+import io.github.dafnipapado.careerstart_backend.specification.JobSeekerSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +34,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -179,6 +185,27 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         } catch (IOException e) {
             throw new FileUploadException("JobSeekerAttachment", "Attachment upload for job seeker with uuid = {" + uuid + "} failed.", e);
         }
+    }
+
+    @Override
+    public Page<JobSeekerSummaryReadOnlyDTO> getPaginatedFilteredJobSeekers(JobSeekerFilters jobSeekerFilters) throws EntityNotFoundException {
+        if (jobSeekerFilters.getUuid() != null) {
+            JobSeeker jobSeeker = getJobSeekerByUuid(jobSeekerFilters.getUuid());
+            return getSingleResultPage(jobSeekerFilters.getPageable(), jobSeeker);
+        }
+
+        var filtered = jobSeekerRepository.findAll(JobSeekerSpecification.build(jobSeekerFilters), jobSeekerFilters.getPageable());
+
+        log.info("Filtered {} job seekers.", filtered.getNumberOfElements());
+        return filtered.map(mapper::mapToJobSeekerSummaryReadOnlyDTO);
+    }
+
+    private Page<JobSeekerSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobSeeker jobSeeker) {
+        return new PageImpl<>(
+                List.of(mapper.mapToJobSeekerSummaryReadOnlyDTO(jobSeeker)),
+                pageable,
+                1
+        );
     }
 
     @Override

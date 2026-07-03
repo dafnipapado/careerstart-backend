@@ -4,13 +4,12 @@ import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationEx
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerInsertDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_seeker.JobSeekerUpdateDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_seeker.*;
+import io.github.dafnipapado.careerstart_backend.filters.JobSeekerFilters;
 import io.github.dafnipapado.careerstart_backend.service.IJobSeekerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -113,5 +112,14 @@ public class JobSeekerController {
         jobSeekerService.uploadDocument(uuid, file);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<JobSeekerSummaryReadOnlyDTO>> getPaginatedFilteredJobSeekers(@ModelAttribute JobSeekerFilters jobSeekerFilters)
+            throws EntityNotFoundException {
+        Page<JobSeekerSummaryReadOnlyDTO> pagesDTO = jobSeekerService.getPaginatedFilteredJobSeekers(jobSeekerFilters);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(pagesDTO);
     }
 }
