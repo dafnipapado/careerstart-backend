@@ -1,10 +1,8 @@
 package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingInsertDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingUpdateDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.*;
+import io.github.dafnipapado.careerstart_backend.filters.JobListingFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.JobListing;
@@ -14,11 +12,16 @@ import io.github.dafnipapado.careerstart_backend.repository.EmployerRepository;
 import io.github.dafnipapado.careerstart_backend.repository.JobListingRepository;
 import io.github.dafnipapado.careerstart_backend.repository.ProfessionalFieldRepository;
 import io.github.dafnipapado.careerstart_backend.repository.RegionRepository;
+import io.github.dafnipapado.careerstart_backend.specification.JobListingSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -100,6 +103,27 @@ public class JobListingServiceImpl implements IJobListingService{
 
         log.info("Active job listing with uuid = {" + uuid + "} was fetched successfully.");
         return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing);
+    }
+
+    @Override
+    public Page<JobListingSummaryReadOnlyDTO> getPaginatedFilteredJobListings(JobListingFilters jobListingFilters) throws EntityNotFoundException {
+        if (jobListingFilters.getUuid() != null) {
+            JobListing jobListing = getJobListingByUuid(jobListingFilters.getUuid());
+            return getSingleResultPage(jobListingFilters.getPageable(), jobListing);
+        }
+
+        var filtered = jobListingRepository.findAll(JobListingSpecification.build(jobListingFilters), jobListingFilters.getPageable());
+
+        log.info("Filtered {} job listings.", filtered.getNumberOfElements());
+        return filtered.map(mapper::mapToJobListingSummaryReadOnlyDTO);
+    }
+
+    private Page<JobListingSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobListing jobListing) {
+        return new PageImpl<>(
+                List.of(mapper.mapToJobListingSummaryReadOnlyDTO(jobListing)),
+                pageable,
+                1
+        );
     }
 
     @Override

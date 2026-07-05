@@ -2,15 +2,12 @@ package io.github.dafnipapado.careerstart_backend.controller;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingDetailsReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingInsertDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingReadOnlyDTO;
-import io.github.dafnipapado.careerstart_backend.dto.job_listing.JobListingUpdateDTO;
+import io.github.dafnipapado.careerstart_backend.dto.job_listing.*;
+import io.github.dafnipapado.careerstart_backend.filters.JobListingFilters;
 import io.github.dafnipapado.careerstart_backend.service.IJobListingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -94,5 +91,15 @@ public class JobListingController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(jobListingDetailsReadOnlyDTO);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<JobListingSummaryReadOnlyDTO>> getPaginatedFilteredJobListings(@ModelAttribute JobListingFilters jobListingFilters)
+            throws EntityNotFoundException {
+
+        Page<JobListingSummaryReadOnlyDTO> pageDTO = jobListingService.getPaginatedFilteredJobListings(jobListingFilters);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(pageDTO);
     }
 }
