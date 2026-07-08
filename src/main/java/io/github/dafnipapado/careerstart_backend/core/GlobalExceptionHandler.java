@@ -63,6 +63,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 
+    @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<ErrorResponseDTO> handleFileUploadException(FileUploadException e) {
         log.warn("File upload failed with message: {}", e.getMessage());
         return ResponseEntity
