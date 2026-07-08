@@ -34,7 +34,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.POST, "/api/v1/authenticate").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/employers").hasAuthority("INSERT_EMPLOYER")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/employers/{uuid}").hasAuthority("UPDATE_EMPLOYER")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/employers/{uuid}").hasAuthority("DELETE_EMPLOYER")
