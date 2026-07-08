@@ -23,7 +23,6 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @Getter(AccessLevel.PROTECTED)
     @Setter(AccessLevel.NONE)
     @ManyToMany(mappedBy = "roles")
     private Set<Capability> capabilities = new HashSet<>();
