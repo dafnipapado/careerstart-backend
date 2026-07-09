@@ -17,6 +17,6 @@ public class UserServiceImpl implements IUserService{
     @Override
     public Role getRoleByName(String roleName) throws EntityNotFoundException {
         return roleRepository.findByName(roleName)
-                .orElseThrow(() -> new EntityNotFoundException("Role", "Role with id = {" + roleName + "} not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Role", "Role with name = {" + roleName + "} not found."));
     }
 }
