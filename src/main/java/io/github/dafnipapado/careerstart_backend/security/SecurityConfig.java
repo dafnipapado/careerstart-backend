@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/job-listings/{uuid}/view").hasAnyAuthority("ROLE_ADMIN", "ROLE_EMPLOYER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/job-listings/{uuid}").hasAuthority("VIEW_JOB_LISTING")
                         .requestMatchers(HttpMethod.GET, "/api/v1/job-listings").hasAuthority("VIEW_JOB_LISTINGS")
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .anonymous(AbstractHttpConfigurer::disable)
