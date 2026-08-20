@@ -1,6 +1,7 @@
 package io.github.dafnipapado.careerstart_backend.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,12 +19,20 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+    @Value("${allowed.origins}")
+    private List<String> allowedOrigins;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -32,6 +41,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider) throws Exception {
         http
+                .cors(httpSecurityCorsConfigurer ->
+                        httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
@@ -84,5 +95,16 @@ public class SecurityConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedHeaders(List.of("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
