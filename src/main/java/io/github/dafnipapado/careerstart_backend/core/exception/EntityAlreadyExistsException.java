@@ -4,6 +4,6 @@ public class EntityAlreadyExistsException extends GenericException {
     private static final String DEFAULT_CODE = "EntityAlreadyExists";
 
     public EntityAlreadyExistsException(String code, String message) {
-        super(DEFAULT_CODE + code, message);
+        super(code + DEFAULT_CODE, message);
     }
 }
