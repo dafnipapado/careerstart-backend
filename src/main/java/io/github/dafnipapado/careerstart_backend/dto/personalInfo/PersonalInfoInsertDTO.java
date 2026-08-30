@@ -10,7 +10,6 @@ public record PersonalInfoInsertDTO(
         @Pattern(regexp = "\\w+\\.?\\w+@\\w+\\.\\w+")
         String email,
 
-        @Pattern(regexp = "\\d{10}")
         String telephoneNumber,
 
         String address,
