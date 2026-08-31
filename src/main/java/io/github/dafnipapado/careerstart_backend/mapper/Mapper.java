@@ -49,14 +49,18 @@ public class Mapper {
 
     public EmployerDetailsReadOnlyDTO mapToEmployerDetailsReadOnlyDTO(Employer employer) {
         return new EmployerDetailsReadOnlyDTO(
+                employer.getId(),
                 employer.getUuid().toString(),
                 employer.getBrandName(),
+                employer.getVat(),
                 employer.getWebsite(),
+                employer.getProfessionalField().getName(),
                 employer.getProfessionalField().getId(),
                 new PersonalInfoDetailsReadOnlyDTO(
                     employer.getPersonalInfo().getEmail(),
                     employer.getPersonalInfo().getTelephoneNumber(),
                     employer.getPersonalInfo().getAddress(),
+                    employer.getPersonalInfo().getRegion().getName(),
                     employer.getPersonalInfo().getRegion().getId()
                 )
         );
@@ -105,6 +109,7 @@ public class Mapper {
                         jobSeeker.getPersonalInfo().getEmail(),
                         jobSeeker.getPersonalInfo().getTelephoneNumber(),
                         jobSeeker.getPersonalInfo().getAddress(),
+                        jobSeeker.getPersonalInfo().getRegion().getName(),
                         jobSeeker.getPersonalInfo().getRegion().getId()
                 )
         );

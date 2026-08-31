@@ -4,6 +4,7 @@ public record PersonalInfoDetailsReadOnlyDTO(
         String email,
         String telephoneNumber,
         String address,
+        String regionName,
         Long regionId
 ) {
 }
