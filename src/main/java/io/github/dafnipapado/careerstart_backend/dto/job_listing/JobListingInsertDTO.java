@@ -14,9 +14,6 @@ public record JobListingInsertDTO(
     String description,
 
     @NotNull
-    Long employerId,
-
-    @NotNull
     Long professionalFieldId,
 
     @NotNull
