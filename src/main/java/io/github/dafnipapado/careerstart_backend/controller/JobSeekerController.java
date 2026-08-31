@@ -123,7 +123,7 @@ public class JobSeekerController {
                 .body(pagesDTO);
     }
 
-    @GetMapping("/me")
+    @GetMapping("/dashboard")
     public ResponseEntity<JobSeekerDetailsReadOnlyDTO> getCurrentJobSeeker() {
         JobSeekerDetailsReadOnlyDTO jobSeekerDetailsReadOnlyDTO = jobSeekerService.getCurrentJobSeeker();
         return ResponseEntity
