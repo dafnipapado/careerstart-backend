@@ -49,7 +49,6 @@ public class Mapper {
 
     public EmployerDetailsReadOnlyDTO mapToEmployerDetailsReadOnlyDTO(Employer employer) {
         return new EmployerDetailsReadOnlyDTO(
-                employer.getId(),
                 employer.getUuid().toString(),
                 employer.getBrandName(),
                 employer.getVat(),

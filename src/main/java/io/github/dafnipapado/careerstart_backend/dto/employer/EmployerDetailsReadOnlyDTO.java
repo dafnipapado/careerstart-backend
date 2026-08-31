@@ -3,7 +3,6 @@ package io.github.dafnipapado.careerstart_backend.dto.employer;
 import io.github.dafnipapado.careerstart_backend.dto.personalInfo.PersonalInfoDetailsReadOnlyDTO;
 
 public record EmployerDetailsReadOnlyDTO(
-        Long id,
         String uuid,
         String brandName,
         String vat,
