@@ -24,6 +24,8 @@ public interface IEmployerService {
 
     Page<EmployerSummaryReadOnlyDTO> getPaginatedFilteredEmployers(EmployerFilters employerFilters) throws EntityNotFoundException;
 
+    EmployerDetailsReadOnlyDTO getCurrentEmployer();
+
     Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException;
     Employer getEmployerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException;
     ProfessionalField getProfessionalFieldById(Long professionalFieldId) throws EntityNotFoundException;

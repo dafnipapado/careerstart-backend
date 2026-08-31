@@ -26,6 +26,8 @@ public interface IJobSeekerService {
 
     Page<JobSeekerSummaryReadOnlyDTO> getPaginatedFilteredJobSeekers(JobSeekerFilters jobSeekerFilters) throws EntityNotFoundException;
 
+    JobSeekerDetailsReadOnlyDTO getCurrentJobSeeker();
+
     JobSeeker getJobSeekerByUuid(UUID uuid) throws EntityNotFoundException;
     JobSeeker getJobSeekerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException;
 }

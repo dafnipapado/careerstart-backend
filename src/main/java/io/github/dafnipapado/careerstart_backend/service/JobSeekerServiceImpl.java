@@ -4,21 +4,19 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
-import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerSummaryReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.*;
 import io.github.dafnipapado.careerstart_backend.filters.JobSeekerFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.Attachment;
-import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
+import io.github.dafnipapado.careerstart_backend.model.User;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
 import io.github.dafnipapado.careerstart_backend.repository.AttachmentRepository;
 import io.github.dafnipapado.careerstart_backend.repository.JobSeekerRepository;
 import io.github.dafnipapado.careerstart_backend.repository.PersonalInfoRepository;
 import io.github.dafnipapado.careerstart_backend.repository.UserRepository;
-import io.github.dafnipapado.careerstart_backend.specification.EmployerSpecification;
 import io.github.dafnipapado.careerstart_backend.specification.JobSeekerSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +61,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
             throw new EntityAlreadyExistsException("User", "User with username = {" + jobSeekerInsertDTO.userInsertDTO().username() + "} already exists.");
         }
         if (personalInfoRepository.findByEmail(jobSeekerInsertDTO.personalInfoInsertDTO().email()).isPresent()) {
-            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = {" + jobSeekerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
+            throw new EntityAlreadyExistsException("User", "User with email = {" + jobSeekerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
         }
 
         JobSeeker jobSeeker = mapper.mapToJobSeekerEntity(jobSeekerInsertDTO);
@@ -108,7 +106,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         //-check for already existing email, if changed
         String updatedEmail = jobSeekerUpdateDTO.personalInfoUpdateDTO().email();
         if (!Objects.equals(updatedEmail, jobSeeker.getPersonalInfo().getEmail()) && personalInfoRepository.findByEmail(updatedEmail).isPresent()) {
-            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = {" + updatedEmail + "} already exists.");
+            throw new EntityAlreadyExistsException("User", "User with email = {" + updatedEmail + "} already exists.");
         }
         jobSeeker.getPersonalInfo().setEmail(updatedEmail);
         jobSeeker.getPersonalInfo().setTelephoneNumber(jobSeekerUpdateDTO.personalInfoUpdateDTO().telephoneNumber());
@@ -198,6 +196,13 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
 
         log.info("Filtered {} job seekers.", filtered.getNumberOfElements());
         return filtered.map(mapper::mapToJobSeekerSummaryReadOnlyDTO);
+    }
+
+    @Override
+    public JobSeekerDetailsReadOnlyDTO getCurrentJobSeeker() {
+        User currentUser = userService.getCurrentUser();
+        JobSeeker currentJobSeeker = currentUser.getJobSeeker();
+        return mapper.mapToJobSeekerDetailsReadOnlyDTO(currentJobSeeker);
     }
 
     private Page<JobSeekerSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobSeeker jobSeeker) {

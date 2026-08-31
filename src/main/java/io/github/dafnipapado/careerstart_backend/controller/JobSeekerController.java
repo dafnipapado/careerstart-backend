@@ -122,4 +122,12 @@ public class JobSeekerController {
                 .status(HttpStatus.OK)
                 .body(pagesDTO);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<JobSeekerDetailsReadOnlyDTO> getCurrentJobSeeker() {
+        JobSeekerDetailsReadOnlyDTO jobSeekerDetailsReadOnlyDTO = jobSeekerService.getCurrentJobSeeker();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobSeekerDetailsReadOnlyDTO);
+    }
 }

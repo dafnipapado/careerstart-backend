@@ -10,6 +10,7 @@ import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.Attachment;
 import io.github.dafnipapado.careerstart_backend.model.Employer;
 import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
+import io.github.dafnipapado.careerstart_backend.model.User;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
@@ -62,7 +63,7 @@ public class EmployerServiceImpl implements IEmployerService{
             throw new EntityAlreadyExistsException("User", "User with username = {" + employerInsertDTO.userInsertDTO().username() + "} already exists.");
         }
         if (personalInfoRepository.findByEmail(employerInsertDTO.personalInfoInsertDTO().email()).isPresent()) {
-            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = {" + employerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
+            throw new EntityAlreadyExistsException("User", "User with email = {" + employerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
         }
 
         Employer employer = mapper.mapToEmployerEntity(employerInsertDTO);
@@ -123,7 +124,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //-check for already existing email, if changed
         String updatedEmail = employerUpdateDTO.personalInfoUpdateDTO().email();
         if (!Objects.equals(updatedEmail, employer.getPersonalInfo().getEmail()) && personalInfoRepository.findByEmail(updatedEmail).isPresent()) {
-            throw new EntityAlreadyExistsException("PersonalInfo", "Personal Info with email = {" + updatedEmail + "} already exists.");
+            throw new EntityAlreadyExistsException("User", "User with email = {" + updatedEmail + "} already exists.");
         }
         employer.getPersonalInfo().setEmail(updatedEmail);
         employer.getPersonalInfo().setTelephoneNumber(employerUpdateDTO.personalInfoUpdateDTO().telephoneNumber());
@@ -229,6 +230,12 @@ public class EmployerServiceImpl implements IEmployerService{
         );
     }
 
+    @Override
+    public EmployerDetailsReadOnlyDTO getCurrentEmployer() {
+        User currentUser = userService.getCurrentUser();
+        Employer currentEmployer = currentUser.getEmployer();
+        return mapper.mapToEmployerDetailsReadOnlyDTO(currentEmployer);
+    }
 
     // === Utility service methods ===
 

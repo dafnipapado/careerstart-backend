@@ -114,4 +114,12 @@ public class EmployerController {
                 .status(HttpStatus.OK)
                 .body(pageDTO);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<EmployerDetailsReadOnlyDTO> getCurrentEmployer() {
+        EmployerDetailsReadOnlyDTO employerDetailsReadOnlyDTO = employerService.getCurrentEmployer();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(employerDetailsReadOnlyDTO);
+    }
 }
