@@ -6,6 +6,7 @@ public record JobListingSummaryReadOnlyDTO(
         String regionName,
         String professionalFieldName,
         String dateCreated,
+        String employerUuid,
         String employerBrandName
 ) {
 }

@@ -18,5 +18,6 @@ public class JobListingFilters extends PaginationGenericFilters {
     private String region;
     private String professionalField;
     private LocalDate createdAt;
+    private UUID employerUuid;
     private String employerBrandName;
 }

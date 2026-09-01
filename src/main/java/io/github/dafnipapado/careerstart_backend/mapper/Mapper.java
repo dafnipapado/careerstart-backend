@@ -129,6 +129,7 @@ public class Mapper {
                 jobListing.getRegion().getName(),
                 jobListing.getProfessionalField().getName(),
                 jobListing.getCreatedAt().toString(),
+                jobListing.getEmployer().getUuid().toString(),
                 jobListing.getEmployer().getBrandName()
         );
     }

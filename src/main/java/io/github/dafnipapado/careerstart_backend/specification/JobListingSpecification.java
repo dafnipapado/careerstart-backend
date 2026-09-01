@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 public class JobListingSpecification {
 
@@ -15,7 +16,8 @@ public class JobListingSpecification {
             hasRegion(jobListingFilters.getRegion()),
             hasProfessionalField(jobListingFilters.getProfessionalField()),
             hasDateCreated(jobListingFilters.getCreatedAt()),
-            hasEmployerBrandName(jobListingFilters.getEmployerBrandName())
+            hasEmployerBrandName(jobListingFilters.getEmployerBrandName()),
+            hasEmployerUuid(jobListingFilters.getEmployerUuid())
         );
     }
 
@@ -47,5 +49,11 @@ public class JobListingSpecification {
         return (root, query, cb) -> employerBrandName == null
         ? cb.conjunction()
         : cb.like(cb.lower(root.get("employer").get("brandName")), "%" + employerBrandName + "%");
+    }
+
+    private static Specification<JobListing> hasEmployerUuid(UUID employerUuid) {
+        return (root, query, cb) -> employerUuid == null
+        ?cb.conjunction()
+        : cb.equal(root.get("employer").get("uuid"), employerUuid);
     }
 }
