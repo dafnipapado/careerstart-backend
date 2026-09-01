@@ -140,6 +140,10 @@ public class Mapper {
             jobListing.getUuid().toString(),
             jobListing.getTitle(),
             jobListing.getDescription(),
+            jobListing.getProfessionalField().getId(),
+            jobListing.getProfessionalField().getName(),
+            jobListing.getRegion().getId(),
+            jobListing.getRegion().getName(),
             mapToEmployerSummaryReadOnlyDTO(employer)
         );
     }

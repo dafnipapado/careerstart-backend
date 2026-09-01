@@ -6,6 +6,10 @@ public record JobListingDetailsReadOnlyDTO(
         String uuid,
         String title,
         String description,
+        Long professionalFieldId,
+        String professionalFieldName,
+        Long regionId,
+        String regionName,
         EmployerSummaryReadOnlyDTO employerSummaryReadOnlyDTO
 ) {
 }
