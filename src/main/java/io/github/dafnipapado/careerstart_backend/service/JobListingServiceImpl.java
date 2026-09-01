@@ -63,14 +63,14 @@ public class JobListingServiceImpl implements IJobListingService{
         jobListing.setTitle(jobListingUpdateDTO.title());
         jobListing.setDescription(jobListingUpdateDTO.description());
         if (!Objects.equals(jobListingUpdateDTO.professionalFieldId(), jobListing.getProfessionalField().getId())) {
-            ProfessionalField previousProfessionalField = employerService.getProfessionalFieldById(jobListingUpdateDTO.professionalFieldId());
-            previousProfessionalField.removeJobListing(jobListing);
-            jobListing.getProfessionalField().addJobListing(jobListing);
+            ProfessionalField updatedProfessionalField = employerService.getProfessionalFieldById(jobListingUpdateDTO.professionalFieldId());
+            jobListing.getProfessionalField().removeJobListing(jobListing);
+            updatedProfessionalField.addJobListing(jobListing);
         }
         if (!Objects.equals(jobListingUpdateDTO.regionId(), jobListing.getRegion().getId())) {
-            Region previousRegion = personalInfoService.getRegionById(jobListingUpdateDTO.regionId());
-            previousRegion.removeJobListing(jobListing);
-            jobListing.getRegion().addJobListing(jobListing);
+            Region updatedRegion = personalInfoService.getRegionById(jobListingUpdateDTO.regionId());
+            jobListing.getRegion().removeJobListing(jobListing);
+            updatedRegion.addJobListing(jobListing);
         }
 
         log.info("Job listing {{}} with uuid = {{}} was updated successfully.", jobListing.getTitle(), jobListing.getUuid());
