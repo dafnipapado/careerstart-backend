@@ -3,7 +3,6 @@ package io.github.dafnipapado.careerstart_backend.filters;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.UUID;
 
 @Setter
@@ -18,6 +17,7 @@ public class JobListingFilters extends PaginationGenericFilters {
     private String region;
     private String professionalField;
     private LocalDate createdAt;
+    private boolean deleted;
     private UUID employerUuid;
     private String employerBrandName;
 }

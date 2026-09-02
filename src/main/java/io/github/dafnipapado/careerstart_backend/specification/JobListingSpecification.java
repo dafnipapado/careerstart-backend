@@ -17,7 +17,8 @@ public class JobListingSpecification {
             hasProfessionalField(jobListingFilters.getProfessionalField()),
             hasDateCreated(jobListingFilters.getCreatedAt()),
             hasEmployerBrandName(jobListingFilters.getEmployerBrandName()),
-            hasEmployerUuid(jobListingFilters.getEmployerUuid())
+            hasEmployerUuid(jobListingFilters.getEmployerUuid()),
+            isDeleted(jobListingFilters.isDeleted())
         );
     }
 
@@ -55,5 +56,10 @@ public class JobListingSpecification {
         return (root, query, cb) -> employerUuid == null
         ?cb.conjunction()
         : cb.equal(root.get("employer").get("uuid"), employerUuid);
+    }
+
+    private static Specification<JobListing> isDeleted(boolean deleted) {
+        return (root, query, cb) ->
+                cb.equal(root.get("deleted"), deleted);
     }
 }
