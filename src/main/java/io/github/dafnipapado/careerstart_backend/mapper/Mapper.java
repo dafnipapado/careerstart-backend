@@ -144,6 +144,7 @@ public class Mapper {
             jobListing.getProfessionalField().getName(),
             jobListing.getRegion().getId(),
             jobListing.getRegion().getName(),
+            jobListing.getCreatedAt().toString(),
             mapToEmployerSummaryReadOnlyDTO(employer)
         );
     }
