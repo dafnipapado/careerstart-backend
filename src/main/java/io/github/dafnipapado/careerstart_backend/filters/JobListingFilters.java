@@ -14,8 +14,8 @@ import java.util.UUID;
 public class JobListingFilters extends PaginationGenericFilters {
     private UUID uuid;
     private String title;
-    private String region;
-    private String professionalField;
+    private Long regionId;
+    private Long professionalFieldId;
     private LocalDate createdAt;
     private boolean deleted;
     private UUID employerUuid;

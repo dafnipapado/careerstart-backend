@@ -13,8 +13,8 @@ public class JobListingSpecification {
     public static Specification<JobListing> build(JobListingFilters jobListingFilters) {
         return Specification.allOf(
             hasTitle(jobListingFilters.getTitle()),
-            hasRegion(jobListingFilters.getRegion()),
-            hasProfessionalField(jobListingFilters.getProfessionalField()),
+            hasRegion(jobListingFilters.getRegionId()),
+            hasProfessionalField(jobListingFilters.getProfessionalFieldId()),
             hasDateCreated(jobListingFilters.getCreatedAt()),
             hasEmployerBrandName(jobListingFilters.getEmployerBrandName()),
             hasEmployerUuid(jobListingFilters.getEmployerUuid()),
@@ -28,16 +28,16 @@ public class JobListingSpecification {
                 : cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%");
     }
 
-    private static Specification<JobListing> hasRegion(String region) {
-        return (root, query, cb) -> region == null
+    private static Specification<JobListing> hasRegion(Long regionId) {
+        return (root, query, cb) -> regionId == null
                 ? cb.conjunction()
-                : cb.equal(cb.lower(root.get("region").get("name")), region.toLowerCase());
+                : cb.equal(root.get("region").get("id"), regionId);
     }
 
-    private static Specification<JobListing> hasProfessionalField(String professionalField) {
-        return (root, query, cb) -> professionalField == null
+    private static Specification<JobListing> hasProfessionalField(Long professionalFieldId) {
+        return (root, query, cb) -> professionalFieldId == null
                 ? cb.conjunction()
-                : cb.equal(cb.lower(root.get("professionalField").get("name")), professionalField.toLowerCase());
+                : cb.equal(root.get("professionalField").get("id"), professionalFieldId);
     }
 
     private static Specification<JobListing> hasDateCreated(LocalDate createdAt) {
