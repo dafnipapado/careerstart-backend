@@ -1,0 +1,2 @@
+ALTER TABLE job_seeker_cvs
+ADD COLUMN uuid UUID NOT NULL;

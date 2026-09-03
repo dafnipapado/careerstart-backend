@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -17,6 +19,9 @@ public class JobSeekerCv {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
+    @Column(unique = true, nullable = false,updatable = false)
+    UUID uuid;
 
     @Column(nullable = false)
     private String profession;
@@ -42,5 +47,10 @@ public class JobSeekerCv {
     @OneToOne
     @JoinColumn(name = "job_seeker_id", nullable = false)
     private JobSeeker jobSeeker;
+
+    @PrePersist
+    public void uuidInitialize() {
+        this.uuid = UUID.randomUUID();
+    }
 
 }
