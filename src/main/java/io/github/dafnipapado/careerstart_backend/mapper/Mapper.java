@@ -1,6 +1,8 @@
 package io.github.dafnipapado.careerstart_backend.mapper;
 
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
+import io.github.dafnipapado.careerstart_backend.dto.cv.CvInsertDTO;
+import io.github.dafnipapado.careerstart_backend.dto.cv.CvReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerDetailsReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.EmployerReadOnlyDTO;
@@ -146,6 +148,34 @@ public class Mapper {
             jobListing.getRegion().getName(),
             jobListing.getCreatedAt().toString(),
             mapToEmployerSummaryReadOnlyDTO(employer)
+        );
+    }
+
+    public JobSeekerCv mapToJobSeekerCvEntity(CvInsertDTO cvInsertDTO) {
+        return new JobSeekerCv(
+            null,
+            null,
+            cvInsertDTO.profession(),
+            cvInsertDTO.bio(),
+            cvInsertDTO.education(),
+            cvInsertDTO.experience(),
+            cvInsertDTO.certificates(),
+            cvInsertDTO.languages(),
+            cvInsertDTO.skills(),
+            null
+        );
+    }
+
+    public CvReadOnlyDTO mapToCvReadOnlyDTO(JobSeekerCv jobSeekerCv) {
+        return new CvReadOnlyDTO(
+                jobSeekerCv.getUuid().toString(),
+                jobSeekerCv.getProfession(),
+                jobSeekerCv.getBio(),
+                jobSeekerCv.getEducation(),
+                jobSeekerCv.getExperience(),
+                jobSeekerCv.getCertificates(),
+                jobSeekerCv.getLanguages(),
+                jobSeekerCv.getSkills()
         );
     }
 
