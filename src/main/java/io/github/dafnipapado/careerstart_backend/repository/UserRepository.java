@@ -5,10 +5,12 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     @EntityGraph(attributePaths = {"role", "role.capabilities"})
     Optional<User> findByUsername(String username);
     Optional<User> findByRoleId(Long id);
+    Optional<User> findByUuid(UUID uuid);
 
 }
