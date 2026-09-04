@@ -60,11 +60,11 @@ public class CvController {
                 .body(cvReadOnlyDTO);
     }
 
-    @GetMapping(value = "/{uuid}/view")
-    public ResponseEntity<CvReadOnlyDTO> getJobSeekerCv(@PathVariable("uuid") UUID uuid)
+    @GetMapping(value = "/{jobSeekerUuid}/view")
+    public ResponseEntity<CvReadOnlyDTO> getJobSeekerCv(@PathVariable("jobSeekerUuid") UUID jobSeekerUuid)
             throws EntityNotFoundException {
 
-        CvReadOnlyDTO cvReadOnlyDTO = cvService.getJobSeekerCv(uuid);
+        CvReadOnlyDTO cvReadOnlyDTO = cvService.getJobSeekerCv(jobSeekerUuid);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

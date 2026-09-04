@@ -5,6 +5,7 @@ import io.github.dafnipapado.careerstart_backend.dto.cv.CvInsertDTO;
 import io.github.dafnipapado.careerstart_backend.dto.cv.CvReadOnlyDTO;
 import io.github.dafnipapado.careerstart_backend.dto.cv.CvUpdateDTO;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
+import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.model.JobSeekerCv;
 import io.github.dafnipapado.careerstart_backend.repository.JobSeekerCvRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class CvServiceImpl implements ICvService{
 
     private final IUserService userService;
+    private final IJobSeekerService jobSeekerService;
     private final JobSeekerCvRepository jobSeekerCvRepository;
     private final Mapper mapper;
 
@@ -51,8 +53,10 @@ public class CvServiceImpl implements ICvService{
     }
 
     @Override
-    public CvReadOnlyDTO getJobSeekerCv(UUID uuid) throws EntityNotFoundException {
-        return mapper.mapToCvReadOnlyDTO(getCvByUuid(uuid));
+    public CvReadOnlyDTO getJobSeekerCv(UUID jobSeekerUuid) throws EntityNotFoundException {
+        JobSeeker jobSeeker = jobSeekerService.getJobSeekerByUuid(jobSeekerUuid);
+        JobSeekerCv jobSeekerCv = jobSeeker.getJobSeekerCv();
+        return mapper.mapToCvReadOnlyDTO(jobSeekerCv);
     }
 
     @Override
