@@ -130,4 +130,27 @@ public class JobSeekerController {
                 .status(HttpStatus.OK)
                 .body(jobSeekerDetailsReadOnlyDTO);
     }
+
+    @PostMapping("/{jobListingUuid}/apply")
+    public ResponseEntity<Void> apply(@PathVariable("jobListingUuid") UUID jobListingUuid)
+            throws EntityNotFoundException {
+        jobSeekerService.apply(jobListingUuid);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{jobListingUuid}/withdraw")
+    public ResponseEntity<Void> withdraw(@PathVariable("jobListingUuid") UUID jobListingUuid)
+            throws EntityNotFoundException {
+        jobSeekerService.withdraw(jobListingUuid);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{jobListingUuid}/has-applied")
+    public ResponseEntity<Boolean> hasApplied(@PathVariable("jobListingUuid") UUID jobListingUuid)
+            throws EntityNotFoundException {
+        boolean hasJobSeekerApplied = jobSeekerService.hasJobListing(jobListingUuid);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(hasJobSeekerApplied);
+    }
 }

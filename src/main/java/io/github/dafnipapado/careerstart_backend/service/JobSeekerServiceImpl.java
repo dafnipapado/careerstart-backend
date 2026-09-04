@@ -7,10 +7,7 @@ import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUpload
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.*;
 import io.github.dafnipapado.careerstart_backend.filters.JobSeekerFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
-import io.github.dafnipapado.careerstart_backend.model.Attachment;
-import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
-import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
-import io.github.dafnipapado.careerstart_backend.model.User;
+import io.github.dafnipapado.careerstart_backend.model.*;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
 import io.github.dafnipapado.careerstart_backend.repository.AttachmentRepository;
@@ -44,6 +41,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     private final IUserService userService;
     private final IPersonalInfoService personalInfoService;
     private final IAttachmentService attachmentService;
+    private final IJobListingService jobListingService;
     private final JobSeekerRepository jobSeekerRepository;
     private final UserRepository userRepository;
     private final PersonalInfoRepository personalInfoRepository;
@@ -203,6 +201,28 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         User currentUser = userService.getCurrentUser();
         JobSeeker currentJobSeeker = currentUser.getJobSeeker();
         return mapper.mapToJobSeekerDetailsReadOnlyDTO(currentJobSeeker);
+    }
+
+    @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public void apply(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException {
+        if (hasJobListing(jobListingUuid)) throw new EntityAlreadyExistsException("JobSeekerJobListing", "Job Seeker has already applied to job listing with uuid = {{jobListingUuid}}");
+        JobListing jobListing = jobListingService.getJobListingByUuid(jobListingUuid);
+        userService.getCurrentUserByUuid().getJobSeeker().addJobListing(jobListing);
+    }
+
+    @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public void withdraw(UUID jobListingUuid) throws EntityNotFoundException {
+        JobListing jobListing = jobListingService.getJobListingByUuid(jobListingUuid);
+        userService.getCurrentUserByUuid().getJobSeeker().removeJobListing(jobListing);
+    }
+
+    @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public boolean hasJobListing(UUID jobListingUuid) throws EntityNotFoundException {
+        JobListing jobListing = jobListingService.getJobListingByUuidDeletedFalse(jobListingUuid);
+        return userService.getCurrentUserByUuid().getJobSeeker().getJobListings().contains(jobListing);
     }
 
     private Page<JobSeekerSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobSeeker jobSeeker) {
