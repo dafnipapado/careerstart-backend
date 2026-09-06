@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -52,12 +53,15 @@ public class AttachmentServiceImpl implements IAttachmentService {
             Path directoryPath = Paths.get(directory);
             //-delete the already existing filepath, if present
             Path existingFilePath = null;
-            if (Files.exists(directoryPath) && Files.list(directoryPath).findAny().isPresent()) {
-                existingFilePath = Files.list(directoryPath).findFirst().orElse(null);
-                if (existingFilePath != null) Files.delete(existingFilePath);
-            } else {
-                Files.createDirectories(filePath.getParent());
+            if (Files.exists(directoryPath)) {
+                try (Stream<Path> stream = Files.list(directoryPath)) {
+                    existingFilePath = stream.findFirst().orElse(null);
+                }
             }
+            if (existingFilePath != null) Files.delete(existingFilePath);
+
+            Files.createDirectories(filePath.getParent());
+
 
             file.transferTo(filePath);
 
