@@ -3,6 +3,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.*;
 import io.github.dafnipapado.careerstart_backend.filters.EmployerFilters;
@@ -30,6 +31,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -202,6 +206,18 @@ public class EmployerServiceImpl implements IEmployerService{
         } catch (IOException e) {
             throw new FileUploadException("EmployerAttachment", "Attachment upload for employer with uuid = {" + uuid + "} failed.", e);
         }
+    }
+
+    @Override
+    public AttachmentReadDTO getProfilePicture(UUID employerUuid) throws EntityNotFoundException, IOException {
+        Attachment attachment = getEmployerByUuidDeletedFalse(employerUuid).getPersonalInfo().getAttachments().stream().findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Employer with uuid = {" + employerUuid + "} doesn't have an attachment"));
+
+        //read the attachment file
+        byte[] bytes = Files.readAllBytes(Paths.get(attachment.getFilepath()));
+        String contentType = attachment.getContentType();
+
+        return new AttachmentReadDTO(bytes, contentType);
     }
 
     @Override
