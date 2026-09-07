@@ -3,6 +3,7 @@ package io.github.dafnipapado.careerstart_backend.controller;
 import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.*;
 import io.github.dafnipapado.careerstart_backend.filters.EmployerFilters;
 import io.github.dafnipapado.careerstart_backend.service.IEmployerService;
@@ -97,13 +98,24 @@ public class EmployerController {
                 .body(employerDetailsReadOnlyDTO);
     }
 
-    @PostMapping("/{uuid}/avatar")
+    @PostMapping(value = "/{uuid}/avatar-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadPicture(@PathVariable UUID uuid, @RequestParam("picture") MultipartFile file)
             throws EntityNotFoundException, IOException {
 
         employerService.uploadAttachment(uuid, file);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{uuid}/avatar")
+    public ResponseEntity<byte[]> getProfilePicture(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException, IOException {
+        AttachmentReadDTO attachmentReadDTO = employerService.getProfilePicture(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.parseMediaType(attachmentReadDTO.contentType()))
+                .body(attachmentReadDTO.bytes());
     }
 
     @GetMapping
