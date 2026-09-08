@@ -33,5 +33,5 @@ public interface IEmployerService {
     Employer getEmployerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException;
     ProfessionalField getProfessionalFieldById(Long professionalFieldId) throws EntityNotFoundException;
 
-
+    long countEmployerJobListings(UUID uuid) throws EntityNotFoundException;
 }

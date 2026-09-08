@@ -31,9 +31,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -49,6 +46,7 @@ public class EmployerServiceImpl implements IEmployerService{
     private final UserRepository userRepository;
     private final PersonalInfoRepository personalInfoRepository;
     private final AttachmentRepository attachmentRepository;
+    private final JobListingRepository jobListingRepository;
     private final IUserService userService;
     private final IPersonalInfoService personalInfoService;
     private final IAttachmentService attachmentService;
@@ -267,5 +265,10 @@ public class EmployerServiceImpl implements IEmployerService{
     public ProfessionalField getProfessionalFieldById(Long professionalFieldId) throws EntityNotFoundException {
         return professionalFieldRepository.findById(professionalFieldId)
                 .orElseThrow(() -> new EntityNotFoundException("ProfessionalField", "Professional field with id = {" + professionalFieldId + "} not found."));
+    }
+
+    @Override
+    public long countEmployerJobListings(UUID uuid) throws EntityNotFoundException {
+        return jobListingRepository.countByEmployerUuidAndDeletedFalse(uuid);
     }
 }
