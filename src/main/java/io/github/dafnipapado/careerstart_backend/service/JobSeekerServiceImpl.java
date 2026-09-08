@@ -3,6 +3,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.*;
 import io.github.dafnipapado.careerstart_backend.filters.JobSeekerFilters;
@@ -181,6 +182,24 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         } catch (IOException e) {
             throw new FileUploadException("JobSeekerAttachment", "Attachment upload for job seeker with uuid = {" + uuid + "} failed.", e);
         }
+    }
+
+    @Override
+    public AttachmentReadDTO getProfilePicture(UUID jobSeekerUuid) throws EntityNotFoundException, IOException {
+        Attachment attachment = getJobSeekerByUuidDeletedFalse(jobSeekerUuid).getPersonalInfo().getAttachments().stream()
+                .filter(a -> a.getContentType().startsWith("image"))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Job seeker with uuid = {" + jobSeekerUuid + "} hasn't uploaded a profile picture"));
+        return attachmentService.getAttachmentData(attachment);
+    }
+
+    @Override
+    public AttachmentReadDTO getCv(UUID jobSeekerUuid) throws EntityNotFoundException, IOException {
+        Attachment attachment = getJobSeekerByUuidDeletedFalse(jobSeekerUuid).getPersonalInfo().getAttachments().stream()
+                .filter(a -> !a.getContentType().startsWith("image"))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Job seeker with uuid = {" + jobSeekerUuid + "} hasn't uploaded a profile picture"));
+        return attachmentService.getAttachmentData(attachment);
     }
 
     @Override

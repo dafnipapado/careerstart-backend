@@ -4,6 +4,7 @@ import io.github.dafnipapado.careerstart_backend.core.exception.DataValidationEx
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.*;
 import io.github.dafnipapado.careerstart_backend.filters.JobSeekerFilters;
 import io.github.dafnipapado.careerstart_backend.service.IJobSeekerService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
 
@@ -113,6 +115,28 @@ public class JobSeekerController {
         jobSeekerService.uploadAttachment(uuid, file);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{uuid}/avatar")
+    public ResponseEntity<byte[]> getProfilePicture(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException, IOException {
+        AttachmentReadDTO attachmentReadDTO = jobSeekerService.getProfilePicture(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.parseMediaType(attachmentReadDTO.contentType()))
+                .body(attachmentReadDTO.bytes());
+    }
+
+    @GetMapping("/{uuid}/cv")
+    public ResponseEntity<byte[]> getCv(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException, IOException {
+        AttachmentReadDTO attachmentReadDTO = jobSeekerService.getCv(uuid);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentType(MediaType.parseMediaType(attachmentReadDTO.contentType()))
+                .body(attachmentReadDTO.bytes());
     }
 
     @GetMapping
