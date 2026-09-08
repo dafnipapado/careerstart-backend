@@ -244,6 +244,15 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         return userService.getCurrentUserByUuid().getJobSeeker().getJobListings().contains(jobListing);
     }
 
+    @Override
+    public List<JobSeekerSummaryReadOnlyDTO> getJobSeekersByJobListing(UUID jobListingUuid) throws EntityNotFoundException {
+        JobListing jobListing = jobListingService.getJobListingByUuidDeletedFalse(jobListingUuid);
+        return jobListing.getJobSeekers()
+                .stream()
+                .map(mapper::mapToJobSeekerSummaryReadOnlyDTO)
+                .toList();
+    }
+
     private Page<JobSeekerSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobSeeker jobSeeker) {
         return new PageImpl<>(
                 List.of(mapper.mapToJobSeekerSummaryReadOnlyDTO(jobSeeker)),

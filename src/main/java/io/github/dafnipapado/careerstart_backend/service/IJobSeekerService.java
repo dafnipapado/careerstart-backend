@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public interface IJobSeekerService {
@@ -33,6 +34,7 @@ public interface IJobSeekerService {
     void apply(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException;
     void withdraw(UUID jobListingUuid) throws EntityNotFoundException;
     boolean hasJobListing(UUID jobListingUuid) throws EntityNotFoundException;
+    List<JobSeekerSummaryReadOnlyDTO> getJobSeekersByJobListing(UUID jobListingUuid) throws EntityNotFoundException;
 
     JobSeeker getJobSeekerByUuid(UUID uuid) throws EntityNotFoundException;
     JobSeeker getJobSeekerByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException;

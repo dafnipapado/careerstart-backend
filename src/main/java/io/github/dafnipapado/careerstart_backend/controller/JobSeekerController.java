@@ -21,6 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -158,7 +159,7 @@ public class JobSeekerController {
 
     @PostMapping("/{jobListingUuid}/apply")
     public ResponseEntity<Void> apply(@PathVariable("jobListingUuid") UUID jobListingUuid)
-            throws EntityNotFoundException {
+            throws EntityNotFoundException, EntityAlreadyExistsException {
         jobSeekerService.apply(jobListingUuid);
         return ResponseEntity.noContent().build();
     }
@@ -177,5 +178,14 @@ public class JobSeekerController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(hasJobSeekerApplied);
+    }
+
+    @GetMapping("/{jobListingUuid}/job-seekers")
+    public ResponseEntity<List<JobSeekerSummaryReadOnlyDTO>> getJobSeekersByJobListing(@PathVariable("jobListingUuid") UUID jobListingUuid)
+            throws EntityNotFoundException {
+        List<JobSeekerSummaryReadOnlyDTO> jobSeekerDTOs = jobSeekerService.getJobSeekersByJobListing(jobListingUuid);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobSeekerDTOs);
     }
 }
