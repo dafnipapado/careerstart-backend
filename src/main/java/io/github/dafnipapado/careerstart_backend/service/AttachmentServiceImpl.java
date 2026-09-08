@@ -1,7 +1,9 @@
 package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.FileHandlingException;
+import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
+import io.github.dafnipapado.careerstart_backend.model.Attachment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
@@ -72,6 +74,14 @@ public class AttachmentServiceImpl implements IAttachmentService {
         } catch (IOException e) {
             throw new FileHandlingException("FileHandlingError", "File could not be processed successfully.", e);
         }
+    }
+
+    @Override
+    public AttachmentReadDTO getAttachmentData(Attachment attachment) throws IOException {
+        byte[] bytes = Files.readAllBytes(Paths.get(attachment.getFilepath()));
+        String contentType = attachment.getContentType();
+
+        return new AttachmentReadDTO(bytes, contentType);
     }
 
     private String getFileExtension(String filename) {

@@ -211,13 +211,9 @@ public class EmployerServiceImpl implements IEmployerService{
     @Override
     public AttachmentReadDTO getProfilePicture(UUID employerUuid) throws EntityNotFoundException, IOException {
         Attachment attachment = getEmployerByUuidDeletedFalse(employerUuid).getPersonalInfo().getAttachments().stream().findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Employer with uuid = {" + employerUuid + "} doesn't have an attachment"));
+                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Employer with uuid = {" + employerUuid + "} hasn't uploaded a profile picture"));
 
-        //read the attachment file
-        byte[] bytes = Files.readAllBytes(Paths.get(attachment.getFilepath()));
-        String contentType = attachment.getContentType();
-
-        return new AttachmentReadDTO(bytes, contentType);
+        return attachmentService.getAttachmentData(attachment);
     }
 
     @Override
