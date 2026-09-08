@@ -20,7 +20,7 @@ public interface IJobSeekerService {
     JobSeekerDetailsReadOnlyDTO getSingleJobSeeker(UUID uuid) throws EntityNotFoundException;
     JobSeekerDetailsReadOnlyDTO getSingleJobSeekerDeletedFalse(UUID uuid) throws EntityNotFoundException;
 
-    void uploadDocument(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
+    void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
 
     Page<JobSeekerSummaryReadOnlyDTO> getPaginatedFilteredJobSeekers(JobSeekerFilters jobSeekerFilters) throws EntityNotFoundException;
 

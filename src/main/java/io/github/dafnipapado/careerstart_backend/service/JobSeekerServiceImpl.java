@@ -157,7 +157,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         backoff = @Backoff(delay = 2000L, multiplier = 2, maxDelay = 10000)
     )
     @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
-    public void uploadDocument(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
+    public void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
         try {
             JobSeeker jobSeeker = getJobSeekerByUuid(uuid);
             PersonalInfo personalInfo = jobSeeker.getPersonalInfo();

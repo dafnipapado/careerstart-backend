@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -96,20 +97,20 @@ public class JobSeekerController {
                 .body(jobSeekerDetailsReadOnlyDTO);
     }
 
-    @PostMapping("/{uuid}/avatar")
+    @PostMapping(value = "/{uuid}/avatar-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadPictureFile(@PathVariable("uuid") UUID uuid, @RequestParam("picture") MultipartFile file)
             throws EntityNotFoundException, FileUploadException {
 
-        jobSeekerService.uploadDocument(uuid, file);
+        jobSeekerService.uploadAttachment(uuid, file);
 
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{uuid}/cv-file")
+    @PostMapping("/{uuid}/cv-upload")
     public ResponseEntity<Void> uploadCvFile(@PathVariable("uuid") UUID uuid, @RequestParam("cv") MultipartFile file)
             throws EntityNotFoundException, FileUploadException {
 
-        jobSeekerService.uploadDocument(uuid, file);
+        jobSeekerService.uploadAttachment(uuid, file);
 
         return ResponseEntity.noContent().build();
     }
