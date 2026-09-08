@@ -108,7 +108,7 @@ public class JobSeekerController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{uuid}/cv-upload")
+    @PostMapping(value = "/{uuid}/cv-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadCvFile(@PathVariable("uuid") UUID uuid, @RequestParam("cv") MultipartFile file)
             throws EntityNotFoundException, FileUploadException {
 
