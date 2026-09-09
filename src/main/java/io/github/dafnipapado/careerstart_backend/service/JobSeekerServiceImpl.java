@@ -160,7 +160,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
     public void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
         try {
-            JobSeeker jobSeeker = getJobSeekerByUuid(uuid);
+            JobSeeker jobSeeker = userService.getCurrentUserByUuid().getJobSeeker();
             PersonalInfo personalInfo = jobSeeker.getPersonalInfo();
 
             AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "jobseeker");
