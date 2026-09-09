@@ -80,8 +80,9 @@ public class AttachmentServiceImpl implements IAttachmentService {
     public AttachmentReadDTO getAttachmentData(Attachment attachment) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(attachment.getFilepath()));
         String contentType = attachment.getContentType();
+        String filename = attachment.getFilename();
 
-        return new AttachmentReadDTO(bytes, contentType);
+        return new AttachmentReadDTO(bytes, contentType, filename);
     }
 
     private String getFileExtension(String filename) {

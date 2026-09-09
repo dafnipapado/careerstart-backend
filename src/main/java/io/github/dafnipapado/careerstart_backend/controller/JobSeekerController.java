@@ -11,6 +11,7 @@ import io.github.dafnipapado.careerstart_backend.service.IJobSeekerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -137,6 +138,7 @@ public class JobSeekerController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.parseMediaType(attachmentReadDTO.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + attachmentReadDTO.filename())
                 .body(attachmentReadDTO.bytes());
     }
 
