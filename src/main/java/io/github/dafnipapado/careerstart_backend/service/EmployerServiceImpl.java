@@ -261,8 +261,14 @@ public class EmployerServiceImpl implements IEmployerService{
     }
 
     @Override
-    public long countEmployerJobListings(UUID uuid) throws EntityNotFoundException {
+    public long countEmployerJobListings() {
         Employer employer = userService.getCurrentUser().getEmployer();
         return jobListingRepository.countByEmployerUuidAndDeletedFalse(employer.getUuid());
     }
+
+    @Override
+    public long countEmployerJobListingsByEmployerUuid(UUID uuid) {
+        return jobListingRepository.countByEmployerUuidAndDeletedFalse(uuid);
+    }
+
 }

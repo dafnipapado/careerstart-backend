@@ -136,9 +136,17 @@ public class EmployerController {
                 .body(employerDetailsReadOnlyDTO);
     }
 
-    @GetMapping("{uuid}/count-job-listings")
+    @GetMapping("/count-job-listings")
+    public ResponseEntity<Long> countEmployerJobListings() {
+        long jobListingsNumber = employerService.countEmployerJobListings();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(jobListingsNumber);
+    }
+
+    @GetMapping("/{uuid}/count-job-listings")
     public ResponseEntity<Long> countEmployerJobListings(@PathVariable("uuid") UUID uuid) throws EntityNotFoundException{
-        long jobListingsNumber = employerService.countEmployerJobListings(uuid);
+        long jobListingsNumber = employerService.countEmployerJobListingsByEmployerUuid(uuid);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(jobListingsNumber);

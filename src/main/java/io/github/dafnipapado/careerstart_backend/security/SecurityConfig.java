@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/employers/{uuid}/avatar").hasAuthority("VIEW_EMPLOYER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/employers").hasAuthority("VIEW_EMPLOYERS")
                         .requestMatchers(HttpMethod.GET, "/api/v1/employers/dashboard").hasAuthority("ROLE_EMPLOYER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/employers/count-job-listings").hasAuthority("VIEW_EMPLOYER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/employers/{uuid}/count-job-listings").hasAuthority("VIEW_EMPLOYER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/jobseekers").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/jobseekers/{uuid}").hasAuthority("UPDATE_JOB_SEEKER")
