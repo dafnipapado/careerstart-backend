@@ -1,0 +1,2 @@
+ALTER TABLE employers
+ALTER COLUMN profile SET NOT NULL;

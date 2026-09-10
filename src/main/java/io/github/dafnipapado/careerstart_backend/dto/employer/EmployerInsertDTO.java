@@ -23,6 +23,7 @@ public record EmployerInsertDTO(
         @Size(max = 255)
         String website,
 
+        @NotBlank
         @Size(min = 20)
         String profile,
 

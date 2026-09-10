@@ -32,7 +32,7 @@ public class Employer extends AbstractEntity{
     @Column
     private String website;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String profile;
 
     @ManyToOne
