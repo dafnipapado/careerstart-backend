@@ -78,6 +78,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/jobseekers/{jobListingUuid}/withdraw").hasAuthority("WITHDRAW_FROM_JOB_LISTING")
                         .requestMatchers(HttpMethod.GET, "/api/v1/jobseekers/{jobListingUuid}/has-applied").hasAuthority("APPLY_TO_JOB_LISTING")
                         .requestMatchers(HttpMethod.GET, "/api/v1/jobseekers/{jobListingUuid}/job-seekers").hasAnyAuthority("ROLE_EMPLOYER", "ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/users/update-password").hasAnyAuthority("UPDATE_EMPLOYER", "UPDATE_JOB_SEEKER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/fields", "/api/v1/regions").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
