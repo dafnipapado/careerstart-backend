@@ -7,6 +7,7 @@ public record EmployerDetailsReadOnlyDTO(
         String brandName,
         String vat,
         String website,
+        String profile,
         String professionalFieldName,
         Long professionalFieldId,
         PersonalInfoDetailsReadOnlyDTO personalInfoDetailsReadOnlyDTO

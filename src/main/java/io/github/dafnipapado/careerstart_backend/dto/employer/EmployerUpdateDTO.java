@@ -26,6 +26,9 @@ public record EmployerUpdateDTO(
         @Size(max = 255)
         String website,
 
+        @Size(min = 20)
+        String profile,
+
         @NotNull
         Long professionalFieldId,
 

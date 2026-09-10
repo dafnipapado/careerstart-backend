@@ -4,7 +4,6 @@ import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalF
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -33,6 +32,9 @@ public class Employer extends AbstractEntity{
     @Column
     private String website;
 
+    @Column(columnDefinition = "TEXT")
+    private String profile;
+
     @ManyToOne
     @JoinColumn(name = "professional_field_id", nullable = false)
     private ProfessionalField professionalField;
@@ -60,7 +62,6 @@ public class Employer extends AbstractEntity{
 
     public void removeJobListing(JobListing jobListing){
         jobListings.remove(jobListing);
-        jobListing.setEmployer(null);
     }
 
     @Override

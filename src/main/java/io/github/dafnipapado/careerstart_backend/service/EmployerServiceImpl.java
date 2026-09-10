@@ -101,6 +101,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //set updated fields for employer
         employer.setBrandName(employerUpdateDTO.brandName());
         employer.setWebsite(employerUpdateDTO.website());
+        employer.setProfile(employerUpdateDTO.profile());
         //-check for already existing vat, if changed
         String updatedVat = employerUpdateDTO.vat();
         if (!Objects.equals(updatedVat, employer.getVat()) && employerRepository.findByVat(updatedVat).isPresent()) {

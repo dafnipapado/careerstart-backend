@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 public class Mapper {
 
     public Employer mapToEmployerEntity(EmployerInsertDTO employerInsertDTO) {
-        Employer employer = new Employer(null, null, employerInsertDTO.brandName(), employerInsertDTO.vat(), employerInsertDTO.website(), null, null, null, null);
+        Employer employer = new Employer(null, null, employerInsertDTO.brandName(), employerInsertDTO.vat(), employerInsertDTO.website(), employerInsertDTO.profile(), null, null, null, null);
         User user = new User();
         user.setUsername(employerInsertDTO.userInsertDTO().username());
         employer.setUser(user);
@@ -55,6 +55,7 @@ public class Mapper {
                 employer.getBrandName(),
                 employer.getVat(),
                 employer.getWebsite(),
+                employer.getProfile(),
                 employer.getProfessionalField().getName(),
                 employer.getProfessionalField().getId(),
                 new PersonalInfoDetailsReadOnlyDTO(
