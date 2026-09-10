@@ -7,10 +7,7 @@ import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.JobListing;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
-import io.github.dafnipapado.careerstart_backend.repository.EmployerRepository;
 import io.github.dafnipapado.careerstart_backend.repository.JobListingRepository;
-import io.github.dafnipapado.careerstart_backend.repository.ProfessionalFieldRepository;
-import io.github.dafnipapado.careerstart_backend.repository.RegionRepository;
 import io.github.dafnipapado.careerstart_backend.specification.JobListingSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +28,8 @@ public class JobListingServiceImpl implements IJobListingService{
 
     private final Mapper mapper;
     private final JobListingRepository jobListingRepository;
-    private final ProfessionalFieldRepository professionalFieldRepository;
-    private final EmployerRepository employerRepository;
-    private final RegionRepository regionRepository;
     private final IEmployerService employerService;
-    private final IPersonalInfoService personalInfoService;
+    private final IRegionService regionService;
     private final IUserService userService;
 
     @Override
@@ -47,7 +41,7 @@ public class JobListingServiceImpl implements IJobListingService{
 
         ProfessionalField professionalField = employerService.getProfessionalFieldById(jobListingInsertDTO.professionalFieldId());
         jobListing.setProfessionalField(professionalField);
-        Region region = personalInfoService.getRegionById(jobListingInsertDTO.regionId());
+        Region region = regionService.getRegionById(jobListingInsertDTO.regionId());
         jobListing.setRegion(region);
 
         jobListingRepository.save(jobListing);
@@ -68,7 +62,7 @@ public class JobListingServiceImpl implements IJobListingService{
             updatedProfessionalField.addJobListing(jobListing);
         }
         if (!Objects.equals(jobListingUpdateDTO.regionId(), jobListing.getRegion().getId())) {
-            Region updatedRegion = personalInfoService.getRegionById(jobListingUpdateDTO.regionId());
+            Region updatedRegion = regionService.getRegionById(jobListingUpdateDTO.regionId());
             jobListing.getRegion().removeJobListing(jobListing);
             updatedRegion.addJobListing(jobListing);
         }
