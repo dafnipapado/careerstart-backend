@@ -2,6 +2,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileReadException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
@@ -27,10 +28,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -48,7 +47,7 @@ public class EmployerServiceImpl implements IEmployerService{
     private final AttachmentRepository attachmentRepository;
     private final JobListingRepository jobListingRepository;
     private final IUserService userService;
-    private final IPersonalInfoService personalInfoService;
+    private final IRegionService regionService;
     private final IAttachmentService attachmentService;
     private final PasswordEncoder passwordEncoder;
     private final static String EMPLOYER_ROLE_NAME = "EMPLOYER";
@@ -59,13 +58,13 @@ public class EmployerServiceImpl implements IEmployerService{
 
         //checks for already existing vat, username and email
         if (employerRepository.findByVat(employerInsertDTO.vat()).isPresent()) {
-            throw new EntityAlreadyExistsException("Employer", "Employer with vat = {" + employerInsertDTO.vat() + "} already exists.");
+            throw new EntityAlreadyExistsException("EmployerVat", "Employer with vat = {" + employerInsertDTO.vat() + "} already exists.");
         }
         if (userRepository.findByUsername(employerInsertDTO.userInsertDTO().username()).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with username = {" + employerInsertDTO.userInsertDTO().username() + "} already exists.");
+            throw new EntityAlreadyExistsException("UserUsername", "User with username = {" + employerInsertDTO.userInsertDTO().username() + "} already exists.");
         }
         if (personalInfoRepository.findByEmail(employerInsertDTO.personalInfoInsertDTO().email()).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with email = {" + employerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
+            throw new EntityAlreadyExistsException("UserEmail", "User with email = {" + employerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
         }
 
         Employer employer = mapper.mapToEmployerEntity(employerInsertDTO);
@@ -82,7 +81,7 @@ public class EmployerServiceImpl implements IEmployerService{
         employer.getUser().setRole(role);
 
         Long regionId = employerInsertDTO.personalInfoInsertDTO().regionId();
-        Region region = personalInfoService.getRegionById(regionId);
+        Region region = regionService.getRegionById(regionId);
         employer.getPersonalInfo().setRegion(region);
 
         //save employer entity
@@ -105,7 +104,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //-check for already existing vat, if changed
         String updatedVat = employerUpdateDTO.vat();
         if (!Objects.equals(updatedVat, employer.getVat()) && employerRepository.findByVat(updatedVat).isPresent()) {
-            throw new EntityAlreadyExistsException("Employer", "Employer with vat = {" + updatedVat + "} already exists.");
+            throw new EntityAlreadyExistsException("EmployerVat", "Employer with vat = {" + updatedVat + "} already exists.");
         }
         employer.setVat(updatedVat);
         //-find and set the updated professionalId, if changed
@@ -119,7 +118,7 @@ public class EmployerServiceImpl implements IEmployerService{
         //-check for already existing username, if changed
         String updatedUsername = employerUpdateDTO.userUpdateDTO().username();
         if (!Objects.equals(updatedUsername, employer.getUser().getUsername()) && userRepository.findByUsername(updatedUsername).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with username = {" + updatedUsername + "} already exists.");
+            throw new EntityAlreadyExistsException("UserUsername", "User with username = {" + updatedUsername + "} already exists.");
         }
         employer.getUser().setUsername(updatedUsername);
 
@@ -127,14 +126,14 @@ public class EmployerServiceImpl implements IEmployerService{
         //-check for already existing email, if changed
         String updatedEmail = employerUpdateDTO.personalInfoUpdateDTO().email();
         if (!Objects.equals(updatedEmail, employer.getPersonalInfo().getEmail()) && personalInfoRepository.findByEmail(updatedEmail).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with email = {" + updatedEmail + "} already exists.");
+            throw new EntityAlreadyExistsException("UserEmail", "User with email = {" + updatedEmail + "} already exists.");
         }
         employer.getPersonalInfo().setEmail(updatedEmail);
         employer.getPersonalInfo().setTelephoneNumber(employerUpdateDTO.personalInfoUpdateDTO().telephoneNumber());
         employer.getPersonalInfo().setAddress(employerUpdateDTO.personalInfoUpdateDTO().address());
         //-find and set the updated region, if changed
         if(!Objects.equals(employerUpdateDTO.personalInfoUpdateDTO().regionId(), employer.getPersonalInfo().getRegion().getId())) {
-            Region updatedRegion = personalInfoService.getRegionById(employerUpdateDTO.personalInfoUpdateDTO().regionId());
+            Region updatedRegion = regionService.getRegionById(employerUpdateDTO.personalInfoUpdateDTO().regionId());
             employer.getPersonalInfo().getRegion().removePersonalInfo(employer.getPersonalInfo());
             updatedRegion.addPersonalInfo(employer.getPersonalInfo());
         }
@@ -176,41 +175,36 @@ public class EmployerServiceImpl implements IEmployerService{
 
     @Override
     @Retryable(
-        retryFor = {IOException.class, HttpServerErrorException.class},
+        retryFor = {FileUploadException.class},
         backoff = @Backoff(delay = 2000L, multiplier = 2, maxDelay = 10000)
     )
     @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
     public void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
-        try {
-            Employer employer = userService.getCurrentUser().getEmployer();
-            PersonalInfo personalInfo = employer.getPersonalInfo();
+        Employer employer = userService.getCurrentUser().getEmployer();
+        PersonalInfo personalInfo = employer.getPersonalInfo();
 
-            AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer");
+        AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer");
 
-            //remove previous attachment from personalInfo's set and delete from database, in case it existed
-            if (attachmentUploadDTO.existingFilePath() != null) {
-                Attachment existingAttachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath().toString())
-                        .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing attachment for employer with uuid = {" + uuid + "} not found."));
-                personalInfo.removeAttachment(existingAttachment);
-                attachmentRepository.delete(existingAttachment);
-            }
-
-            Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
-
-            personalInfo.addAttachment(attachment);
-            attachmentRepository.save(attachment);
-
-            log.info("Attachment for employer with uuid = {" + uuid + "} was uploaded successfully.");
-
-        } catch (IOException e) {
-            throw new FileUploadException("EmployerAttachment", "Attachment upload for employer with uuid = {" + uuid + "} failed.", e);
+        //remove previous attachment from personalInfo's set and delete from database, in case it existed
+        if (attachmentUploadDTO.existingFilePath() != null) {
+            Attachment existingAttachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath().toString())
+                    .orElseThrow(() -> new EntityNotFoundException("AttachmentPicture", "Existing attachment for employer with uuid = {" + uuid + "} not found."));
+            personalInfo.removeAttachment(existingAttachment);
+            attachmentRepository.delete(existingAttachment);
         }
+
+        Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
+
+        personalInfo.addAttachment(attachment);
+        attachmentRepository.save(attachment);
+
+        log.info("Attachment for employer with uuid = {" + uuid + "} was uploaded successfully.");
     }
 
     @Override
-    public AttachmentReadDTO getProfilePicture(UUID employerUuid) throws EntityNotFoundException, IOException {
+    public AttachmentReadDTO getProfilePicture(UUID employerUuid) throws EntityNotFoundException, FileReadException {
         Attachment attachment = getEmployerByUuidDeletedFalse(employerUuid).getPersonalInfo().getAttachments().stream().findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Employer with uuid = {" + employerUuid + "} hasn't uploaded a profile picture"));
+                .orElseThrow(() -> new EntityNotFoundException("AttachmentPicture", "Employer with uuid = {" + employerUuid + "} hasn't uploaded a profile picture"));
 
         return attachmentService.getAttachmentData(attachment);
     }
@@ -223,7 +217,7 @@ public class EmployerServiceImpl implements IEmployerService{
         }
         if (employerFilters.getVat() != null) {
             Employer employer = employerRepository.findByVat(employerFilters.getVat())
-                    .orElseThrow(() -> new EntityNotFoundException("Employer", "Employer with vat = {" + employerFilters.getVat() + "} not found."));
+                    .orElseThrow(() -> new EntityNotFoundException("EmployerVat", "Employer with vat = {" + employerFilters.getVat() + "} not found."));
             return getSingleResultPage(employerFilters.getPageable(), employer);
         }
 
@@ -247,8 +241,6 @@ public class EmployerServiceImpl implements IEmployerService{
         Employer currentEmployer = currentUser.getEmployer();
         return mapper.mapToEmployerDetailsReadOnlyDTO(currentEmployer);
     }
-
-    // === Utility service methods ===
 
     @Override
     public Employer getEmployerByUuid(UUID uuid) throws EntityNotFoundException {

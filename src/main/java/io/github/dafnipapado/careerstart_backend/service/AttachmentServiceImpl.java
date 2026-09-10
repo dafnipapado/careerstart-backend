@@ -1,6 +1,8 @@
 package io.github.dafnipapado.careerstart_backend.service;
 
-import io.github.dafnipapado.careerstart_backend.core.exception.FileHandlingException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileReadException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileValidationException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.model.Attachment;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -26,11 +29,42 @@ public class AttachmentServiceImpl implements IAttachmentService {
     @Value("${file.upload.directory}")
     private String uploadDirectory;
 
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of(
+            "image/jpeg",
+            "image/jpg",
+            "image/png"
+    );
+    private static final Set<String> ALLOWED_DOCUMENT_TYPES = Set.of(
+            "application/pdf",
+            "application/msword"
+    );
+
     private final Tika tika;
 
     @Override
-    public AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity) throws FileHandlingException {
+    public AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity) throws FileUploadException {
         try {
+            if (file.isEmpty()) {
+                throw new FileValidationException("EmptyFile", "Uploaded file is empty");
+            }
+
+            String fileType = "";
+            String contentType = tika.detect(file.getBytes());
+            if (contentType.startsWith("image")) {
+                if (!ALLOWED_IMAGE_TYPES.contains(contentType)) {
+                    throw new FileValidationException("UnsupportedFileType", "Image content type is not allowed");
+                }
+                fileType = "picture";
+            } else if (entity.equals("jobseeker")) {
+                if (!ALLOWED_DOCUMENT_TYPES.contains(contentType)) {
+                    throw new FileValidationException("UnsupportedFileType", "Document content type is not allowed");
+                }
+                fileType = "document";
+            }
+            else {
+                throw new FileValidationException("UnsupportedFileType", "File content type is not allowed");
+            }
+
             //generate saved name from uuid and original filename
             String originalFilename = file.getOriginalFilename();
             UUID uuid = UUID.randomUUID();
@@ -38,15 +72,6 @@ public class AttachmentServiceImpl implements IAttachmentService {
             if (!(originalFilename == null || originalFilename.isBlank())) {
                 String filename = originalFilename.trim().replace(" ", "-").toLowerCase();
                 savedName += "_" + filename;
-            }
-
-            //get the file's contentType with tika
-            String fileType = "";
-            String contentType = tika.detect(file.getBytes());
-            if (contentType.startsWith("image")) {
-                fileType = "picture";
-            } else {
-                fileType = "document";
             }
 
             //create the directory and filepath
@@ -63,8 +88,6 @@ public class AttachmentServiceImpl implements IAttachmentService {
             if (existingFilePath != null) Files.delete(existingFilePath);
 
             Files.createDirectories(filePath.getParent());
-
-
             file.transferTo(filePath);
 
             //get the file extension
@@ -72,17 +95,20 @@ public class AttachmentServiceImpl implements IAttachmentService {
 
             return new AttachmentUploadDTO(uuid, originalFilename, savedName, filePath.toString(), contentType, extension, existingFilePath);
         } catch (IOException e) {
-            throw new FileHandlingException("FileHandlingError", "File could not be processed successfully.", e);
+            throw new FileUploadException("FileUpload", "An unexpected error occurred during upload", e);
         }
     }
 
     @Override
-    public AttachmentReadDTO getAttachmentData(Attachment attachment) throws IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get(attachment.getFilepath()));
-        String contentType = attachment.getContentType();
-        String filename = attachment.getFilename();
-
-        return new AttachmentReadDTO(bytes, contentType, filename);
+    public AttachmentReadDTO getAttachmentData(Attachment attachment) {
+        try {
+            byte[] bytes = Files.readAllBytes(Paths.get(attachment.getFilepath()));
+            String contentType = attachment.getContentType();
+            String filename = attachment.getFilename();
+            return new AttachmentReadDTO(bytes, contentType, filename);
+        } catch (IOException e) {
+            throw new FileReadException("FileRead", "Failed to read file", e);
+        }
     }
 
     private String getFileExtension(String filename) {

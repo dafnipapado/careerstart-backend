@@ -168,7 +168,7 @@ public class JobSeekerController {
 
     @DeleteMapping("/{jobListingUuid}/withdraw")
     public ResponseEntity<Void> withdraw(@PathVariable("jobListingUuid") UUID jobListingUuid)
-            throws EntityNotFoundException {
+            throws EntityNotFoundException, EntityAlreadyExistsException {
         jobSeekerService.withdraw(jobListingUuid);
         return ResponseEntity.noContent().build();
     }

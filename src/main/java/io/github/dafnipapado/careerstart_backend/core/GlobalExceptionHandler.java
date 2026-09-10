@@ -55,17 +55,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 
-    @ExceptionHandler(FileHandlingException.class)
-    public ResponseEntity<ErrorResponseDTO> handleFileHandlingException(FileHandlingException e) {
-        log.warn("Processing of uploaded file failed with message: {}", e.getMessage());
+    @ExceptionHandler(FileValidationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleFileValidationException(FileValidationException e) {
+        log.warn("Validation of uploaded file failed with message: {}", e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(FileUploadException.class)
     public ResponseEntity<ErrorResponseDTO> handleFileUploadException(FileUploadException e) {
         log.warn("File upload failed with message: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
+    }
+
+    @ExceptionHandler(FileReadException.class)
+    public ResponseEntity<ErrorResponseDTO> handleFileReadException(FileReadException e) {
+        log.warn("Reading of file failed with message: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));

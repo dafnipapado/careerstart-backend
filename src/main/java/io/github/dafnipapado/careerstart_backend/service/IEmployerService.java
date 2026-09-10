@@ -2,6 +2,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileReadException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.employer.*;
@@ -11,7 +12,6 @@ import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalF
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public interface IEmployerService {
@@ -23,7 +23,7 @@ public interface IEmployerService {
     EmployerDetailsReadOnlyDTO getSingleEmployerDeletedFalse(UUID uuid) throws EntityNotFoundException;
 
     void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
-    AttachmentReadDTO getProfilePicture(UUID employerUuid) throws EntityNotFoundException, IOException;
+    AttachmentReadDTO getProfilePicture(UUID employerUuid) throws EntityNotFoundException, FileReadException;
 
     Page<EmployerSummaryReadOnlyDTO> getPaginatedFilteredEmployers(EmployerFilters employerFilters) throws EntityNotFoundException;
 

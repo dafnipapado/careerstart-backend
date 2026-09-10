@@ -2,6 +2,7 @@ package io.github.dafnipapado.careerstart_backend.service;
 
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExistsException;
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
+import io.github.dafnipapado.careerstart_backend.core.exception.FileReadException;
 import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadException;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
@@ -26,10 +27,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,7 +39,7 @@ import java.util.UUID;
 public class JobSeekerServiceImpl implements IJobSeekerService{
 
     private final IUserService userService;
-    private final IPersonalInfoService personalInfoService;
+    private final IRegionService regionService;
     private final IAttachmentService attachmentService;
     private final IJobListingService jobListingService;
     private final JobSeekerRepository jobSeekerRepository;
@@ -57,10 +56,10 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
 
         //checks for already existing username and email
         if (userRepository.findByUsername(jobSeekerInsertDTO.userInsertDTO().username()).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with username = {" + jobSeekerInsertDTO.userInsertDTO().username() + "} already exists.");
+            throw new EntityAlreadyExistsException("UserUsername", "User with username = {" + jobSeekerInsertDTO.userInsertDTO().username() + "} already exists.");
         }
         if (personalInfoRepository.findByEmail(jobSeekerInsertDTO.personalInfoInsertDTO().email()).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with email = {" + jobSeekerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
+            throw new EntityAlreadyExistsException("UserEmail", "User with email = {" + jobSeekerInsertDTO.personalInfoInsertDTO().email() + "} already exists.");
         }
 
         JobSeeker jobSeeker = mapper.mapToJobSeekerEntity(jobSeekerInsertDTO);
@@ -73,7 +72,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         jobSeeker.getUser().setRole(role);
 
         Long regionId = jobSeekerInsertDTO.personalInfoInsertDTO().regionId();
-        Region region = personalInfoService.getRegionById(regionId);
+        Region region = regionService.getRegionById(regionId);
         jobSeeker.getPersonalInfo().setRegion(region);
 
         //save jobseeker entity
@@ -97,7 +96,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         //-check for already existing username, if changed
         String updatedUsername = jobSeekerUpdateDTO.userUpdateDTO().username();
         if (!Objects.equals(updatedUsername, jobSeeker.getUser().getUsername()) && userRepository.findByUsername(updatedUsername).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with username = {" + updatedUsername + "} already exists.");
+            throw new EntityAlreadyExistsException("UserUsername", "User with username = {" + updatedUsername + "} already exists.");
         }
         jobSeeker.getUser().setUsername(updatedUsername);
 
@@ -105,14 +104,14 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         //-check for already existing email, if changed
         String updatedEmail = jobSeekerUpdateDTO.personalInfoUpdateDTO().email();
         if (!Objects.equals(updatedEmail, jobSeeker.getPersonalInfo().getEmail()) && personalInfoRepository.findByEmail(updatedEmail).isPresent()) {
-            throw new EntityAlreadyExistsException("User", "User with email = {" + updatedEmail + "} already exists.");
+            throw new EntityAlreadyExistsException("UserEmail", "User with email = {" + updatedEmail + "} already exists.");
         }
         jobSeeker.getPersonalInfo().setEmail(updatedEmail);
         jobSeeker.getPersonalInfo().setTelephoneNumber(jobSeekerUpdateDTO.personalInfoUpdateDTO().telephoneNumber());
         jobSeeker.getPersonalInfo().setAddress(jobSeekerUpdateDTO.personalInfoUpdateDTO().address());
         //-find and set the updated region, if changed
         if (!Objects.equals(jobSeekerUpdateDTO.personalInfoUpdateDTO().regionId(), jobSeeker.getPersonalInfo().getRegion().getId())) {
-            Region updatedRegion = personalInfoService.getRegionById(jobSeekerUpdateDTO.personalInfoUpdateDTO().regionId());
+            Region updatedRegion = regionService.getRegionById(jobSeekerUpdateDTO.personalInfoUpdateDTO().regionId());
             jobSeeker.getPersonalInfo().getRegion().removePersonalInfo(jobSeeker.getPersonalInfo());
             updatedRegion.addPersonalInfo(jobSeeker.getPersonalInfo());
         }
@@ -154,51 +153,48 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
 
     @Override
     @Retryable(
-        retryFor = {IOException.class, HttpServerErrorException.class},
+        retryFor = {FileUploadException.class},
         backoff = @Backoff(delay = 2000L, multiplier = 2, maxDelay = 10000)
     )
     @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
     public void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
-        try {
-            JobSeeker jobSeeker = userService.getCurrentUserByUuid().getJobSeeker();
-            PersonalInfo personalInfo = jobSeeker.getPersonalInfo();
 
-            AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "jobseeker");
+        JobSeeker jobSeeker = userService.getCurrentUserByUuid().getJobSeeker();
+        PersonalInfo personalInfo = jobSeeker.getPersonalInfo();
 
-            if (attachmentUploadDTO.existingFilePath() != null) {
-                Attachment attachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath().toString())
-                        .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing attachment in filepath = {"
-                                + attachmentUploadDTO.existingFilePath().toString() + "} for job seeker with uuid = {" + uuid + "} not found."));
-                personalInfo.removeAttachment(attachment);
-                attachmentRepository.delete(attachment);
-            }
+        AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "jobseeker");
 
-            Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
-
-            personalInfo.addAttachment(attachment);
-            attachmentRepository.save(attachment);
-
-            log.info("Attachment for job seeker with uuid = {" + uuid + "} was uploaded successfully.");
-        } catch (IOException e) {
-            throw new FileUploadException("JobSeekerAttachment", "Attachment upload for job seeker with uuid = {" + uuid + "} failed.", e);
+        if (attachmentUploadDTO.existingFilePath() != null) {
+            Attachment attachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath().toString())
+                    .orElseThrow(() -> new EntityNotFoundException("Attachment", "Existing attachment in filepath = {"
+                            + attachmentUploadDTO.existingFilePath().toString() + "} for job seeker with uuid = {" + uuid + "} not found."));
+            personalInfo.removeAttachment(attachment);
+            attachmentRepository.delete(attachment);
         }
+
+        Attachment attachment = mapper.mapToAttachmentEntity(attachmentUploadDTO);
+
+        personalInfo.addAttachment(attachment);
+        attachmentRepository.save(attachment);
+
+        log.info("Attachment for job seeker with uuid = {" + uuid + "} was uploaded successfully.");
     }
 
     @Override
-    public AttachmentReadDTO getProfilePicture(UUID jobSeekerUuid) throws EntityNotFoundException, IOException {
+    public AttachmentReadDTO getProfilePicture(UUID jobSeekerUuid) throws EntityNotFoundException, FileReadException {
         Attachment attachment = getJobSeekerByUuidDeletedFalse(jobSeekerUuid).getPersonalInfo().getAttachments().stream()
                 .filter(a -> a.getContentType().startsWith("image"))
                 .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Job seeker with uuid = {" + jobSeekerUuid + "} hasn't uploaded a profile picture"));
+                .orElseThrow(() -> new EntityNotFoundException("AttachmentPicture", "Job seeker with uuid = {" + jobSeekerUuid + "} hasn't uploaded a profile picture"));
         return attachmentService.getAttachmentData(attachment);
     }
 
     @Override
-    public AttachmentReadDTO getCv(UUID jobSeekerUuid) throws EntityNotFoundException, IOException {
+    public AttachmentReadDTO getCv(UUID jobSeekerUuid) throws EntityNotFoundException, FileReadException {
         Attachment attachment = getJobSeekerByUuidDeletedFalse(jobSeekerUuid).getPersonalInfo().getAttachments().stream()
                 .filter(a -> !a.getContentType().startsWith("image"))
                 .findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Attachment", "Job seeker with uuid = {" + jobSeekerUuid + "} hasn't uploaded a profile picture"));
+                .orElseThrow(() -> new EntityNotFoundException("AttachmentCV", "Job seeker with uuid = {" + jobSeekerUuid + "} hasn't uploaded a CV"));
         return attachmentService.getAttachmentData(attachment);
     }
 
@@ -225,14 +221,15 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void apply(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException {
-        if (hasJobListing(jobListingUuid)) throw new EntityAlreadyExistsException("JobSeekerJobListing", "Job Seeker has already applied to job listing with uuid = {{jobListingUuid}}");
+        if (hasJobListing(jobListingUuid)) throw new EntityAlreadyExistsException("JobSeekerJobListingApply", "Job Seeker has already applied to job listing with uuid = {{jobListingUuid}}");
         JobListing jobListing = jobListingService.getJobListingByUuid(jobListingUuid);
         userService.getCurrentUserByUuid().getJobSeeker().addJobListing(jobListing);
     }
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public void withdraw(UUID jobListingUuid) throws EntityNotFoundException {
+    public void withdraw(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException {
+        if (!hasJobListing(jobListingUuid)) throw new EntityAlreadyExistsException("JobSeekerJobListingWithdraw", "Job Seeker has already withdrawn from job listing with uuid = {{jobListingUuid}}");
         JobListing jobListing = jobListingService.getJobListingByUuid(jobListingUuid);
         userService.getCurrentUserByUuid().getJobSeeker().removeJobListing(jobListing);
     }

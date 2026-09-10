@@ -52,7 +52,7 @@ public class UserServiceImpl implements IUserService{
     @Transactional(rollbackFor = {EntityNotFoundException.class, InvalidCredentialsException.class})
     public void updatePassword(PasswordUpdateDTO passwordUpdateDTO) throws EntityNotFoundException, InvalidCredentialsException {
         User user = getCurrentUserByUuid();
-        if (!verifyPassword(passwordUpdateDTO.oldPassword())) throw new InvalidCredentialsException("User", "Wrong password during update");
+        if (!verifyPassword(passwordUpdateDTO.oldPassword())) throw new InvalidCredentialsException("UserPassword", "Wrong password during update");
         user.setPassword(passwordEncoder.encode(passwordUpdateDTO.newPassword()));
     }
 }
