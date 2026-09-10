@@ -2,13 +2,11 @@ package io.github.dafnipapado.careerstart_backend.core.exception;
 
 import lombok.Getter;
 
-import java.io.IOException;
-
 @Getter
-public class FileHandlingException extends IOException {
+public class FileValidationException extends RuntimeException {
     private final String code;
 
-    public FileHandlingException(String code, String message, Throwable cause) {
+    public FileValidationException(String code, String message) {
         super(message);
         this.code = code;
     }
