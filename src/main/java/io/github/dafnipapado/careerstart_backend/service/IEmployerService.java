@@ -18,6 +18,7 @@ public interface IEmployerService {
     EmployerReadOnlyDTO save(EmployerInsertDTO employerInsertDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
     EmployerReadOnlyDTO update(EmployerUpdateDTO employerUpdateDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
     EmployerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException;
+    void activate(UUID uuid) throws EntityNotFoundException;
 
     EmployerDetailsReadOnlyDTO getSingleEmployer(UUID uuid) throws EntityNotFoundException;
     EmployerDetailsReadOnlyDTO getSingleEmployerDeletedFalse(UUID uuid) throws EntityNotFoundException;

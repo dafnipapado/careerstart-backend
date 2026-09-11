@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/employers").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/v1/employers/{uuid}").hasAuthority("UPDATE_EMPLOYER")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/employers/{uuid}").hasAuthority("DELETE_EMPLOYER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/employers/{uuid}/activate").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/employers/{uuid}/view").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/employers/{uuid}").hasAuthority("VIEW_EMPLOYER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/employers/{uuid}/avatar-upload").hasAuthority("UPDATE_EMPLOYER")

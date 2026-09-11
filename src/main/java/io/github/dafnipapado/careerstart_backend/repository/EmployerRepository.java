@@ -11,4 +11,5 @@ public interface EmployerRepository extends JpaRepository<Employer, Long>, JpaSp
     Optional<Employer> findByUuid(UUID uuid);
     Optional<Employer> findByUuidAndDeletedFalse(UUID uuid);
     Optional<Employer> findByVat(String vat);
+    Optional<Employer> findByUuidAndDeletedTrue(UUID uuid);
 }

@@ -76,6 +76,14 @@ public class EmployerController {
                 .body(employerReadOnlyDTO);
     }
 
+    @PatchMapping(value = "/{uuid}/activate")
+    public ResponseEntity<EmployerReadOnlyDTO> activate(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        employerService.activate(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping(value = "/{uuid}/view")
     public ResponseEntity<EmployerDetailsReadOnlyDTO> getSingleEmployer(@PathVariable("uuid") UUID uuid)
             throws EntityNotFoundException {

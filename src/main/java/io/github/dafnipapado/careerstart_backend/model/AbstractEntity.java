@@ -39,4 +39,9 @@ public abstract class AbstractEntity {
         this.deleted = true;
         this.deletedAt = Instant.now();
     }
+
+    public void activate() {
+        this.deleted = false;
+        this.deletedAt = null;
+    }
 }
