@@ -210,7 +210,7 @@ public class EmployerServiceImpl implements IEmployerService{
     }
 
     @Override
-    public Page<EmployerSummaryReadOnlyDTO> getPaginatedFilteredEmployers(EmployerFilters employerFilters) throws EntityNotFoundException {
+    public Page<EmployerDetailsReadOnlyDTO> getPaginatedFilteredEmployers(EmployerFilters employerFilters) throws EntityNotFoundException {
         if (employerFilters.getUuid() != null) {
             Employer employer = getEmployerByUuid(employerFilters.getUuid());
             return getSingleResultPage(employerFilters.getPageable(), employer);
@@ -224,12 +224,12 @@ public class EmployerServiceImpl implements IEmployerService{
         var filtered = employerRepository.findAll(EmployerSpecification.build(employerFilters), employerFilters.getPageable());
 
         log.info("Filtered {} employers.", filtered.getNumberOfElements());
-        return filtered.map(mapper::mapToEmployerSummaryReadOnlyDTO);
+        return filtered.map(mapper::mapToEmployerDetailsReadOnlyDTO);
     }
 
-    private Page<EmployerSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, Employer employer) {
+    private Page<EmployerDetailsReadOnlyDTO> getSingleResultPage(Pageable pageable, Employer employer) {
         return new PageImpl<>(
-                List.of(mapper.mapToEmployerSummaryReadOnlyDTO(employer)),
+                List.of(mapper.mapToEmployerDetailsReadOnlyDTO(employer)),
                 pageable,
                 1
         );

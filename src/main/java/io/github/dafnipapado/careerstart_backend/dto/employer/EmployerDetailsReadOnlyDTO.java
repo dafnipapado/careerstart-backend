@@ -10,6 +10,7 @@ public record EmployerDetailsReadOnlyDTO(
         String profile,
         String professionalFieldName,
         Long professionalFieldId,
-        PersonalInfoDetailsReadOnlyDTO personalInfoDetailsReadOnlyDTO
+        PersonalInfoDetailsReadOnlyDTO personalInfoDetailsReadOnlyDTO,
+        boolean deleted
 ) {
 }

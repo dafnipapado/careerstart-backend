@@ -25,7 +25,7 @@ public interface IEmployerService {
     void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
     AttachmentReadDTO getProfilePicture(UUID employerUuid) throws EntityNotFoundException, FileReadException;
 
-    Page<EmployerSummaryReadOnlyDTO> getPaginatedFilteredEmployers(EmployerFilters employerFilters) throws EntityNotFoundException;
+    Page<EmployerDetailsReadOnlyDTO> getPaginatedFilteredEmployers(EmployerFilters employerFilters) throws EntityNotFoundException;
 
     EmployerDetailsReadOnlyDTO getCurrentEmployer();
 

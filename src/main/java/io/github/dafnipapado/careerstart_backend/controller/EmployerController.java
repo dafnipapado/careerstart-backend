@@ -119,10 +119,10 @@ public class EmployerController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<EmployerSummaryReadOnlyDTO>> getPaginatedFilteredEmployers(@ModelAttribute EmployerFilters employerFilters)
+    public ResponseEntity<Page<EmployerDetailsReadOnlyDTO>> getPaginatedFilteredEmployers(@ModelAttribute EmployerFilters employerFilters)
             throws EntityNotFoundException {
 
-        Page<EmployerSummaryReadOnlyDTO> pageDTO = employerService.getPaginatedFilteredEmployers(employerFilters);
+        Page<EmployerDetailsReadOnlyDTO> pageDTO = employerService.getPaginatedFilteredEmployers(employerFilters);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(pageDTO);

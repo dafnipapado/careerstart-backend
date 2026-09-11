@@ -64,7 +64,8 @@ public class Mapper {
                     employer.getPersonalInfo().getAddress(),
                     employer.getPersonalInfo().getRegion().getName(),
                     employer.getPersonalInfo().getRegion().getId()
-                )
+                ),
+                employer.isDeleted()
         );
     }
 
