@@ -9,8 +9,7 @@ public class JobSeekerSpecification {
     public static Specification<JobSeeker> build(JobSeekerFilters jobSeekerFilters) {
         return Specification.allOf(
                 hasLastname(jobSeekerFilters.getLastname()),
-                hasRegion(jobSeekerFilters.getRegion()),
-                isDeleted(jobSeekerFilters.isDeleted())
+                hasRegion(jobSeekerFilters.getRegion())
         );
     }
 
@@ -24,10 +23,5 @@ public class JobSeekerSpecification {
         return (root, query, cb) -> region == null
                 ? cb.conjunction()
                 : cb.equal(cb.lower(root.get("region").get("name")), region.toLowerCase());
-    }
-
-    private static Specification<JobSeeker> isDeleted(boolean deleted) {
-        return (root, query, cb) ->
-                cb.equal(root.get("deleted"), deleted);
     }
 }

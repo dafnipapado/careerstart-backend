@@ -15,5 +15,4 @@ public class JobSeekerFilters extends PaginationGenericFilters{
     private String firstname;
     private String lastname;
     private String region;
-    private boolean deleted;
 }
