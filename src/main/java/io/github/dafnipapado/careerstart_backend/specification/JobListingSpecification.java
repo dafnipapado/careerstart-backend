@@ -12,13 +12,14 @@ public class JobListingSpecification {
 
     public static Specification<JobListing> build(JobListingFilters jobListingFilters) {
         return Specification.allOf(
-            hasTitle(jobListingFilters.getTitle()),
-            hasRegion(jobListingFilters.getRegionId()),
-            hasProfessionalField(jobListingFilters.getProfessionalFieldId()),
-            hasDateCreated(jobListingFilters.getCreatedAt()),
-            hasEmployerBrandName(jobListingFilters.getEmployerBrandName()),
-            hasEmployerUuid(jobListingFilters.getEmployerUuid()),
-            isDeleted(jobListingFilters.isDeleted())
+                hasTitle(jobListingFilters.getTitle()),
+                hasRegion(jobListingFilters.getRegionId()),
+                hasProfessionalField(jobListingFilters.getProfessionalFieldId()),
+                hasDateCreated(jobListingFilters.getCreatedAt()),
+                hasEmployerBrandName(jobListingFilters.getEmployerBrandName()),
+                hasEmployerUuid(jobListingFilters.getEmployerUuid()),
+                isDeleted(jobListingFilters.isDeleted()),
+                hasJobSeekerUuid(jobListingFilters.getJobSeekerUuid())
         );
     }
 
@@ -48,18 +49,27 @@ public class JobListingSpecification {
 
     private static Specification<JobListing> hasEmployerBrandName(String employerBrandName) {
         return (root, query, cb) -> employerBrandName == null
-        ? cb.conjunction()
-        : cb.like(cb.lower(root.get("employer").get("brandName")), "%" + employerBrandName + "%");
+                ? cb.conjunction()
+                : cb.like(cb.lower(root.get("employer").get("brandName")), "%" + employerBrandName + "%");
     }
 
     private static Specification<JobListing> hasEmployerUuid(UUID employerUuid) {
         return (root, query, cb) -> employerUuid == null
-        ?cb.conjunction()
-        : cb.equal(root.get("employer").get("uuid"), employerUuid);
+                ? cb.conjunction()
+                : cb.equal(root.get("employer").get("uuid"), employerUuid);
     }
 
     private static Specification<JobListing> isDeleted(boolean deleted) {
         return (root, query, cb) ->
                 cb.equal(root.get("deleted"), deleted);
+    }
+
+    private static Specification<JobListing> hasJobSeekerUuid(UUID jobSeekerUuid) {
+        return (root, query, cb) -> {
+            if (query != null) query.distinct(true);
+            return jobSeekerUuid == null
+                    ? cb.conjunction()
+                    : cb.equal(root.join("jobSeekers").get("uuid"), jobSeekerUuid);
+        };
     }
 }

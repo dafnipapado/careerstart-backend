@@ -20,4 +20,5 @@ public class JobListingFilters extends PaginationGenericFilters {
     private boolean deleted;
     private UUID employerUuid;
     private String employerBrandName;
+    private UUID jobSeekerUuid;
 }
