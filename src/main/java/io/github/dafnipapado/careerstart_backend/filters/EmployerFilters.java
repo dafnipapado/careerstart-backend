@@ -16,5 +16,4 @@ public class EmployerFilters extends PaginationGenericFilters{
     private String brandName;
     private String professionalField;
     private String region;
-    private boolean deleted;
 }

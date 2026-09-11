@@ -11,8 +11,7 @@ public class EmployerSpecification {
         return Specification.allOf(
                 hasBrandName(employerFilters.getBrandName()),
                 hasProfessionalField(employerFilters.getProfessionalField()),
-                hasRegion(employerFilters.getRegion()),
-                isDeleted(employerFilters.isDeleted())
+                hasRegion(employerFilters.getRegion())
         );
     }
 
@@ -32,10 +31,5 @@ public class EmployerSpecification {
         return (root, query, cb) -> region == null
                 ? cb.conjunction()
                 : cb.equal(cb.lower(root.get("region").get("name")), region.toLowerCase());
-    }
-
-    private static Specification<Employer> isDeleted(boolean deleted) {
-        return (root, query, cb) ->
-                cb.equal(root.get("deleted"), deleted);
     }
 }
