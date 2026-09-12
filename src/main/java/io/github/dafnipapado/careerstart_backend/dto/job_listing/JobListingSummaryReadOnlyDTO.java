@@ -7,6 +7,7 @@ public record JobListingSummaryReadOnlyDTO(
         String professionalFieldName,
         String dateCreated,
         String employerUuid,
-        String employerBrandName
+        String employerBrandName,
+        boolean deleted
 ) {
 }
