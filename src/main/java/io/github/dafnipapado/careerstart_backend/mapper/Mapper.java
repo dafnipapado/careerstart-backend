@@ -135,7 +135,8 @@ public class Mapper {
                 jobListing.getProfessionalField().getName(),
                 jobListing.getCreatedAt().toString(),
                 jobListing.getEmployer().getUuid().toString(),
-                jobListing.getEmployer().getBrandName()
+                jobListing.getEmployer().getBrandName(),
+                jobListing.isDeleted()
         );
     }
 

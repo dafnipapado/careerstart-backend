@@ -83,6 +83,16 @@ public class JobListingServiceImpl implements IJobListingService{
     }
 
     @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public void restore(UUID uuid) throws EntityNotFoundException {
+        JobListing jobListing = jobListingRepository.findByUuidAndDeletedTrue(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("JobListing", "No deleted job listing with uuid = {" + uuid + "} found"));
+
+        jobListing.activate();
+        log.info("Job listing with uuid = {" + uuid + "} was restored successfully");
+    }
+
+    @Override
     public JobListingDetailsReadOnlyDTO getSingleJobListing(UUID uuid) throws EntityNotFoundException {
         JobListing jobListing = getJobListingByUuid(uuid);
 

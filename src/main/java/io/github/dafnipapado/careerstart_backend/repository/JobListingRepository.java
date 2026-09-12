@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface JobListingRepository extends JpaRepository<JobListing, Long>, JpaSpecificationExecutor<JobListing> {
     Optional<JobListing> findByUuid(UUID uuid);
     Optional<JobListing> findByUuidAndDeletedFalse(UUID uuid);
+    Optional<JobListing> findByUuidAndDeletedTrue(UUID uuid);
     long countByEmployerUuidAndDeletedFalse(UUID employerUuid);
 }

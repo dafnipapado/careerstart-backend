@@ -12,6 +12,7 @@ public interface IJobListingService {
     JobListingReadOnlyDTO save(JobListingInsertDTO jobListingInsertDTO) throws EntityNotFoundException;
     JobListingReadOnlyDTO update(JobListingUpdateDTO jobListingUpdateDTO) throws EntityNotFoundException;
     JobListingReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException;
+    void restore(UUID uuid) throws EntityNotFoundException;
 
     JobListingDetailsReadOnlyDTO getSingleJobListing(UUID uuid) throws EntityNotFoundException;
     JobListingDetailsReadOnlyDTO getSingleJobListingDeletedFalse(UUID uuid) throws EntityNotFoundException;

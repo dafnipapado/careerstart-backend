@@ -71,6 +71,14 @@ public class JobListingController {
                 .body(jobListingReadOnlyDTO);
     }
 
+    @PatchMapping(value = "/{uuid}/restore")
+    public ResponseEntity<Void> restore(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        jobListingService.restore(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping(value = "/{uuid}/view")
     public ResponseEntity<JobListingDetailsReadOnlyDTO> getSingleJobListing(@PathVariable("uuid") UUID uuid)
             throws EntityNotFoundException {
