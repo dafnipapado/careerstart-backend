@@ -113,7 +113,7 @@ public class JobSeekerController {
     public ResponseEntity<Void> uploadPictureFile(@PathVariable("uuid") UUID uuid, @RequestParam("picture") MultipartFile file)
             throws EntityNotFoundException, FileUploadException {
 
-        jobSeekerService.uploadAttachment(uuid, file);
+        jobSeekerService.uploadAttachment(uuid, file, "picture");
 
         return ResponseEntity.noContent().build();
     }
@@ -122,7 +122,7 @@ public class JobSeekerController {
     public ResponseEntity<Void> uploadCvFile(@PathVariable("uuid") UUID uuid, @RequestParam("cv") MultipartFile file)
             throws EntityNotFoundException, FileUploadException {
 
-        jobSeekerService.uploadAttachment(uuid, file);
+        jobSeekerService.uploadAttachment(uuid, file, "document");
 
         return ResponseEntity.noContent().build();
     }
