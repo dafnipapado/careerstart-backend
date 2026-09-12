@@ -42,24 +42,21 @@ public class AttachmentServiceImpl implements IAttachmentService {
     private final Tika tika;
 
     @Override
-    public AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity) throws FileUploadException {
+    public AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity, String type) throws FileUploadException {
         try {
             if (file.isEmpty()) {
                 throw new FileValidationException("EmptyFile", "Uploaded file is empty");
             }
 
-            String fileType = "";
             String contentType = tika.detect(file.getBytes());
-            if (contentType.startsWith("image")) {
+            if (type.equals("picture")) {
                 if (!ALLOWED_IMAGE_TYPES.contains(contentType)) {
                     throw new FileValidationException("UnsupportedFileType", "Image content type is not allowed");
                 }
-                fileType = "picture";
-            } else if (entity.equals("jobseeker")) {
-                if (!ALLOWED_DOCUMENT_TYPES.contains(contentType)) {
+            } else if (type.equals("document")) {
+                if (!entity.equals("jobseeker") || !ALLOWED_DOCUMENT_TYPES.contains(contentType)) {
                     throw new FileValidationException("UnsupportedFileType", "Document content type is not allowed");
                 }
-                fileType = "document";
             }
             else {
                 throw new FileValidationException("UnsupportedFileType", "File content type is not allowed");
@@ -75,7 +72,7 @@ public class AttachmentServiceImpl implements IAttachmentService {
             }
 
             //create the directory and filepath
-            String directory = uploadDirectory + entity + "/" + actorUuid + "/" + fileType + "/";
+            String directory = uploadDirectory + entity + "/" + actorUuid + "/" + type + "/";
             Path filePath = Paths.get(directory + savedName);
             Path directoryPath = Paths.get(directory);
             //-delete the already existing filepath, if present

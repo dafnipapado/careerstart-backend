@@ -9,6 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 public interface IAttachmentService {
-    AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity) throws FileUploadException;
+    AttachmentUploadDTO uploadAttachment(UUID actorUuid, MultipartFile file, String entity, String type) throws FileUploadException;
     AttachmentReadDTO getAttachmentData(Attachment attachment);
 }
