@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface JobSeekerRepository extends JpaRepository<JobSeeker, Long>, JpaSpecificationExecutor<JobSeeker> {
     Optional<JobSeeker> findByUuid(UUID uuid);
     Optional<JobSeeker> findByUuidAndDeletedFalse(UUID uuid);
+    Optional<JobSeeker> findByUuidAndDeletedTrue(UUID uuid);
 }

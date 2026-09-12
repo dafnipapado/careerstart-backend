@@ -125,7 +125,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public JobSeekerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException {
 
-        JobSeeker jobSeeker = getJobSeekerByUuid(uuid);
+        JobSeeker jobSeeker = getJobSeekerByUuidDeletedFalse(uuid);
         jobSeeker.softDelete();
         jobSeeker.getUser().softDelete();
         jobSeeker.getPersonalInfo().softDelete();
@@ -133,6 +133,17 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         log.info("Job Seeker with uuid = {" + uuid + "} was soft deleted successfully.");
 
         return mapper.mapToJobSeekerReadOnlyDTO(jobSeeker);
+    }
+
+    @Override
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public void activate(UUID uuid) throws EntityNotFoundException {
+        JobSeeker jobSeeker = jobSeekerRepository.findByUuidAndDeletedTrue(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("JobSeeker", "No deactivated job seeker with uuid = {" + uuid + "} found"));
+        jobSeeker.activate();
+        jobSeeker.getPersonalInfo().activate();
+        jobSeeker.getUser().activate();
+        log.info("Job seeker with uuid = {" + uuid + "} was activated successfully");
     }
 
     @Override
@@ -199,7 +210,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     }
 
     @Override
-    public Page<JobSeekerSummaryReadOnlyDTO> getPaginatedFilteredJobSeekers(JobSeekerFilters jobSeekerFilters) throws EntityNotFoundException {
+    public Page<JobSeekerDetailsReadOnlyDTO> getPaginatedFilteredJobSeekers(JobSeekerFilters jobSeekerFilters) throws EntityNotFoundException {
         if (jobSeekerFilters.getUuid() != null) {
             JobSeeker jobSeeker = getJobSeekerByUuid(jobSeekerFilters.getUuid());
             return getSingleResultPage(jobSeekerFilters.getPageable(), jobSeeker);
@@ -208,7 +219,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         var filtered = jobSeekerRepository.findAll(JobSeekerSpecification.build(jobSeekerFilters), jobSeekerFilters.getPageable());
 
         log.info("Filtered {} job seekers.", filtered.getNumberOfElements());
-        return filtered.map(mapper::mapToJobSeekerSummaryReadOnlyDTO);
+        return filtered.map(mapper::mapToJobSeekerDetailsReadOnlyDTO);
     }
 
     @Override
@@ -250,9 +261,9 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
                 .toList();
     }
 
-    private Page<JobSeekerSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobSeeker jobSeeker) {
+    private Page<JobSeekerDetailsReadOnlyDTO> getSingleResultPage(Pageable pageable, JobSeeker jobSeeker) {
         return new PageImpl<>(
-                List.of(mapper.mapToJobSeekerSummaryReadOnlyDTO(jobSeeker)),
+                List.of(mapper.mapToJobSeekerDetailsReadOnlyDTO(jobSeeker)),
                 pageable,
                 1
         );

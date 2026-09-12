@@ -79,6 +79,14 @@ public class JobSeekerController {
                 .body(jobSeekerReadOnlyDTO);
     }
 
+    @PatchMapping(value = "/{uuid}/activate")
+    public ResponseEntity<Void> activate(@PathVariable("uuid") UUID uuid)
+            throws EntityNotFoundException {
+
+        jobSeekerService.activate(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping(value = "/{uuid}/view")
     public ResponseEntity<JobSeekerDetailsReadOnlyDTO> getSingleJobSeeker(@PathVariable("uuid") UUID uuid)
             throws EntityNotFoundException {
@@ -143,9 +151,9 @@ public class JobSeekerController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<JobSeekerSummaryReadOnlyDTO>> getPaginatedFilteredJobSeekers(@ModelAttribute JobSeekerFilters jobSeekerFilters)
+    public ResponseEntity<Page<JobSeekerDetailsReadOnlyDTO>> getPaginatedFilteredJobSeekers(@ModelAttribute JobSeekerFilters jobSeekerFilters)
             throws EntityNotFoundException {
-        Page<JobSeekerSummaryReadOnlyDTO> pagesDTO = jobSeekerService.getPaginatedFilteredJobSeekers(jobSeekerFilters);
+        Page<JobSeekerDetailsReadOnlyDTO> pagesDTO = jobSeekerService.getPaginatedFilteredJobSeekers(jobSeekerFilters);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(pagesDTO);

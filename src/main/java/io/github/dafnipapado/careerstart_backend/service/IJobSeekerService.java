@@ -19,6 +19,7 @@ public interface IJobSeekerService {
     JobSeekerReadOnlyDTO save(JobSeekerInsertDTO jobSeekerInsertDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
     JobSeekerReadOnlyDTO update(JobSeekerUpdateDTO jobSeekerUpdateDTO) throws EntityNotFoundException, EntityAlreadyExistsException;
     JobSeekerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException;
+    void activate(UUID uuid) throws EntityNotFoundException;
 
     JobSeekerDetailsReadOnlyDTO getSingleJobSeeker(UUID uuid) throws EntityNotFoundException;
     JobSeekerDetailsReadOnlyDTO getSingleJobSeekerDeletedFalse(UUID uuid) throws EntityNotFoundException;
@@ -27,7 +28,7 @@ public interface IJobSeekerService {
     AttachmentReadDTO getProfilePicture(UUID jobSeekerUuid) throws EntityNotFoundException, FileReadException;
     AttachmentReadDTO getCv(UUID jobSeekerUuid) throws EntityNotFoundException, FileReadException;
 
-    Page<JobSeekerSummaryReadOnlyDTO> getPaginatedFilteredJobSeekers(JobSeekerFilters jobSeekerFilters) throws EntityNotFoundException;
+    Page<JobSeekerDetailsReadOnlyDTO> getPaginatedFilteredJobSeekers(JobSeekerFilters jobSeekerFilters) throws EntityNotFoundException;
 
     JobSeekerDetailsReadOnlyDTO getCurrentJobSeeker();
 

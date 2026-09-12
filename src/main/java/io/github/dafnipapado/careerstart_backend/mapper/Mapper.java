@@ -114,7 +114,8 @@ public class Mapper {
                         jobSeeker.getPersonalInfo().getAddress(),
                         jobSeeker.getPersonalInfo().getRegion().getName(),
                         jobSeeker.getPersonalInfo().getRegion().getId()
-                )
+                ),
+                jobSeeker.isDeleted()
         );
     }
 
