@@ -6,6 +6,7 @@ public record JobSeekerDetailsReadOnlyDTO(
         String uuid,
         String firstname,
         String lastname,
-        PersonalInfoDetailsReadOnlyDTO personalInfoDetailsReadOnlyDTO
+        PersonalInfoDetailsReadOnlyDTO personalInfoDetailsReadOnlyDTO,
+        boolean deleted
 ) {
 }
