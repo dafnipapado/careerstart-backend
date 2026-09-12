@@ -195,7 +195,7 @@ public class EmployerServiceImpl implements IEmployerService{
         Employer employer = userService.getCurrentUser().getEmployer();
         PersonalInfo personalInfo = employer.getPersonalInfo();
 
-        AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer", "picture");
+        AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer");
 
         //remove previous attachment from personalInfo's set and delete from database, in case it existed
         if (attachmentUploadDTO.existingFilePath() != null) {

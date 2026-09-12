@@ -24,7 +24,7 @@ public interface IJobSeekerService {
     JobSeekerDetailsReadOnlyDTO getSingleJobSeeker(UUID uuid) throws EntityNotFoundException;
     JobSeekerDetailsReadOnlyDTO getSingleJobSeekerDeletedFalse(UUID uuid) throws EntityNotFoundException;
 
-    void uploadAttachment(UUID uuid, MultipartFile file, String type) throws EntityNotFoundException, FileUploadException;
+    void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException;
     AttachmentReadDTO getProfilePicture(UUID jobSeekerUuid) throws EntityNotFoundException, FileReadException;
     AttachmentReadDTO getCv(UUID jobSeekerUuid) throws EntityNotFoundException, FileReadException;
 

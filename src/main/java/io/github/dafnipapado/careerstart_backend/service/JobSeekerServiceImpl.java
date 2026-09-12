@@ -173,7 +173,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
         JobSeeker jobSeeker = userService.getCurrentUserByUuid().getJobSeeker();
         PersonalInfo personalInfo = jobSeeker.getPersonalInfo();
 
-        AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "jobseeker", type);
+        AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "jobseeker");
 
         if (attachmentUploadDTO.existingFilePath() != null) {
             Attachment attachment = attachmentRepository.findByFilepath(attachmentUploadDTO.existingFilePath().toString())
