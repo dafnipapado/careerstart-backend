@@ -1,0 +1,6 @@
+CareerStart
+
+Project Overview
+CareerStart is a simple full-stack job portal application with a REST API backend built with Java/Spring Boot,
+a React frontend, and PostgreSQL for database persistence. The app aims to connect employers and job seekers
+through a role-based access system, enabling each user type to interact with the platform according to their permissions.
