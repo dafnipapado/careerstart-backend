@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 public record PersonalInfoUpdateDTO(
 
         @NotBlank
-        @Pattern(regexp = "\\w+\\.?\\w+@\\w+\\.\\w+")
+        @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
         String email,
 
         @Pattern(regexp = "\\d{10}")
