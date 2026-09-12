@@ -77,7 +77,7 @@ public class EmployerController {
     }
 
     @PatchMapping(value = "/{uuid}/activate")
-    public ResponseEntity<EmployerReadOnlyDTO> activate(@PathVariable("uuid") UUID uuid)
+    public ResponseEntity<Void> activate(@PathVariable("uuid") UUID uuid)
             throws EntityNotFoundException {
 
         employerService.activate(uuid);
