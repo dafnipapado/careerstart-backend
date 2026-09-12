@@ -192,7 +192,7 @@ public class EmployerServiceImpl implements IEmployerService{
     )
     @Transactional(rollbackFor = {EntityNotFoundException.class, FileUploadException.class})
     public void uploadAttachment(UUID uuid, MultipartFile file) throws EntityNotFoundException, FileUploadException {
-        Employer employer = userService.getCurrentUser().getEmployer();
+        Employer employer = userService.getCurrentUserByUuid().getEmployer();
         PersonalInfo personalInfo = employer.getPersonalInfo();
 
         AttachmentUploadDTO attachmentUploadDTO = attachmentService.uploadAttachment(uuid, file, "employer");
@@ -209,7 +209,6 @@ public class EmployerServiceImpl implements IEmployerService{
 
         personalInfo.addAttachment(attachment);
         attachmentRepository.save(attachment);
-
         log.info("Attachment for employer with uuid = {" + uuid + "} was uploaded successfully.");
     }
 
