@@ -7,15 +7,13 @@ import io.github.dafnipapado.careerstart_backend.core.exception.FileUploadExcept
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentReadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUploadDTO;
 import io.github.dafnipapado.careerstart_backend.dto.job_seeker.*;
+import io.github.dafnipapado.careerstart_backend.enums.Status;
 import io.github.dafnipapado.careerstart_backend.filters.JobSeekerFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
 import io.github.dafnipapado.careerstart_backend.model.*;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
-import io.github.dafnipapado.careerstart_backend.repository.AttachmentRepository;
-import io.github.dafnipapado.careerstart_backend.repository.JobSeekerRepository;
-import io.github.dafnipapado.careerstart_backend.repository.PersonalInfoRepository;
-import io.github.dafnipapado.careerstart_backend.repository.UserRepository;
+import io.github.dafnipapado.careerstart_backend.repository.*;
 import io.github.dafnipapado.careerstart_backend.specification.JobSeekerSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +40,12 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     private final IRegionService regionService;
     private final IAttachmentService attachmentService;
     private final IJobListingService jobListingService;
+    private final IApplicationService applicationService;
     private final JobSeekerRepository jobSeekerRepository;
     private final UserRepository userRepository;
     private final PersonalInfoRepository personalInfoRepository;
     private final AttachmentRepository attachmentRepository;
+    private final ApplicationRepository applicationRepository;
     private final Mapper mapper;
     private final PasswordEncoder passwordEncoder;
     private static final String JOB_SEEKER_ROLE_NAME = "JOB_SEEKER";
@@ -230,19 +230,35 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     }
 
     @Override
-    @Transactional(rollbackFor = EntityNotFoundException.class)
+    @Transactional(rollbackFor = {EntityNotFoundException.class, EntityAlreadyExistsException.class})
     public void apply(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException {
         if (hasJobListing(jobListingUuid)) throw new EntityAlreadyExistsException("JobSeekerJobListingApply", "Job Seeker has already applied to job listing with uuid = {{jobListingUuid}}");
         JobListing jobListing = jobListingService.getJobListingByUuid(jobListingUuid);
-        userService.getCurrentUserByUuid().getJobSeeker().addJobListing(jobListing);
+        JobSeeker jobSeeker = userService.getCurrentUserByUuid().getJobSeeker();
+        jobSeeker.addJobListing(jobListing);
+
+        //create new application or update an already existing one for the jobseeker - job listing pair
+        if (applicationRepository.findByJobSeeker_UuidAndJobListing_Uuid(jobSeeker.getUuid(), jobListingUuid).isPresent()) {
+            Application application = applicationService.getApplicationByJobSeekerUuidAndJobListingUuid(jobSeeker.getUuid(), jobListingUuid);
+            application.setStatus(Status.PENDING);
+            application.setDeleted(false);
+            application.setDeletedAt(null);
+        } else {
+            Application application = new Application(null, null, jobSeeker, jobListing, Status.PENDING);
+            applicationRepository.save(application);
+        }
     }
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
-    public void withdraw(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException {
-        if (!hasJobListing(jobListingUuid)) throw new EntityAlreadyExistsException("JobSeekerJobListingWithdraw", "Job Seeker has already withdrawn from job listing with uuid = {{jobListingUuid}}");
+    public void withdraw(UUID jobListingUuid) throws EntityNotFoundException {
+        if (!hasJobListing(jobListingUuid)) throw new EntityNotFoundException("JobSeekerJobListingWithdraw", "Job Seeker has already withdrawn from job listing with uuid = {{jobListingUuid}}");
         JobListing jobListing = jobListingService.getJobListingByUuid(jobListingUuid);
-        userService.getCurrentUserByUuid().getJobSeeker().removeJobListing(jobListing);
+        JobSeeker jobSeeker = userService.getCurrentUserByUuid().getJobSeeker();
+        jobSeeker.removeJobListing(jobListing);
+
+        Application application = applicationService.getApplicationByJobSeekerUuidAndJobListingUuidDeletedFalse(jobSeeker.getUuid(), jobListingUuid);
+        application.softDelete();
     }
 
     @Override

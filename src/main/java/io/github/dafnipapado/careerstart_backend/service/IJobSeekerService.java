@@ -33,7 +33,7 @@ public interface IJobSeekerService {
     JobSeekerDetailsReadOnlyDTO getCurrentJobSeeker();
 
     void apply(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException;
-    void withdraw(UUID jobListingUuid) throws EntityNotFoundException, EntityAlreadyExistsException;
+    void withdraw(UUID jobListingUuid) throws EntityNotFoundException;
     boolean hasJobListing(UUID jobListingUuid) throws EntityNotFoundException;
     List<JobSeekerSummaryReadOnlyDTO> getJobSeekersByJobListing(UUID jobListingUuid) throws EntityNotFoundException;
 
