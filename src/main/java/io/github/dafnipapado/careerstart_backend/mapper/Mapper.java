@@ -83,7 +83,7 @@ public class Mapper {
     }
 
     public JobSeeker mapToJobSeekerEntity(JobSeekerInsertDTO jobSeekerInsertDTO) {
-        JobSeeker jobSeeker = new JobSeeker(null, null, jobSeekerInsertDTO.firstname(), jobSeekerInsertDTO.lastname(), null, null, null, null);
+        JobSeeker jobSeeker = new JobSeeker(null, null, jobSeekerInsertDTO.firstname(), jobSeekerInsertDTO.lastname(), null, null, null, null, null);
         User user = new User();
         user.setUsername(jobSeekerInsertDTO.userInsertDTO().username());
         jobSeeker.setUser(user);
@@ -120,7 +120,7 @@ public class Mapper {
     }
 
     public JobListing mapToJobListingEntity(JobListingInsertDTO jobListingInsertDTO) {
-         return new JobListing(null, null, jobListingInsertDTO.title(), jobListingInsertDTO.description(), null, null, null, null);
+         return new JobListing(null, null, jobListingInsertDTO.title(), jobListingInsertDTO.description(), null, null, null, null, null);
     }
 
     public JobListingReadOnlyDTO mapToJobListingReadOnlyDTO(JobListing jobListing) {
