@@ -49,6 +49,9 @@ public class JobSeeker extends AbstractEntity{
     @OneToOne(mappedBy = "jobSeeker", orphanRemoval = true)
     private JobSeekerCv jobSeekerCv;
 
+    @OneToMany(mappedBy = "jobSeeker")
+    private Set<Application> applications = new HashSet<>();
+
     @PrePersist
     public void uuidInitialize() {
         this.uuid = UUID.randomUUID();

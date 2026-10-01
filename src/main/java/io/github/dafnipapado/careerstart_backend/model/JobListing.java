@@ -46,6 +46,9 @@ public class JobListing extends AbstractEntity{
     @ManyToMany(mappedBy = "jobListings")
     private Set<JobSeeker> jobSeekers = new HashSet<>();
 
+    @OneToMany(mappedBy = "jobListing")
+    private Set<Application> applications = new HashSet<>();
+
     @PrePersist
     public void uuidInitialize() {
         this.uuid = UUID.randomUUID();
