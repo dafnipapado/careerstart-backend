@@ -8,6 +8,7 @@ public record JobListingSummaryReadOnlyDTO(
         String dateCreated,
         String employerUuid,
         String employerBrandName,
-        boolean deleted
+        boolean deleted,
+        String status
 ) {
 }

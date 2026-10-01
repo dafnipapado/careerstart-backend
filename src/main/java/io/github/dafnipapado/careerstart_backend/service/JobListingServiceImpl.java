@@ -4,9 +4,12 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundEx
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.*;
 import io.github.dafnipapado.careerstart_backend.filters.JobListingFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
+import io.github.dafnipapado.careerstart_backend.model.Application;
 import io.github.dafnipapado.careerstart_backend.model.JobListing;
+import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
+import io.github.dafnipapado.careerstart_backend.repository.ApplicationRepository;
 import io.github.dafnipapado.careerstart_backend.repository.JobListingRepository;
 import io.github.dafnipapado.careerstart_backend.specification.JobListingSpecification;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,7 @@ public class JobListingServiceImpl implements IJobListingService{
 
     private final Mapper mapper;
     private final JobListingRepository jobListingRepository;
+    private final ApplicationRepository applicationRepository;
     private final IEmployerService employerService;
     private final IRegionService regionService;
     private final IUserService userService;
@@ -110,20 +114,30 @@ public class JobListingServiceImpl implements IJobListingService{
 
     @Override
     public Page<JobListingSummaryReadOnlyDTO> getPaginatedFilteredJobListings(JobListingFilters jobListingFilters) throws EntityNotFoundException {
+        JobSeeker jobSeeker = userService.getCurrentUser().getJobSeeker();
+
         if (jobListingFilters.getUuid() != null) {
             JobListing jobListing = getJobListingByUuid(jobListingFilters.getUuid());
-            return getSingleResultPage(jobListingFilters.getPageable(), jobListing);
+            Application application = applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeeker.getUuid(), jobListing.getUuid())
+                    .orElse(null);
+            String status = application != null ? application.getStatus().toString() : null;
+            return getSingleResultPage(jobListingFilters.getPageable(), jobListing, status);
         }
 
         var filtered = jobListingRepository.findAll(JobListingSpecification.build(jobListingFilters), jobListingFilters.getPageable());
-
         log.info("Filtered {} job listings.", filtered.getNumberOfElements());
-        return filtered.map(mapper::mapToJobListingSummaryReadOnlyDTO);
+
+        return filtered.map(jobListing -> {
+            String status = applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeeker.getUuid(), jobListing.getUuid())
+                    .map(application -> application.getStatus().toString())
+                    .orElse(null);
+            return mapper.mapToJobListingSummaryReadOnlyDTO(jobListing, status);
+        });
     }
 
-    private Page<JobListingSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobListing jobListing) {
+    private Page<JobListingSummaryReadOnlyDTO> getSingleResultPage(Pageable pageable, JobListing jobListing, String status) {
         return new PageImpl<>(
-                List.of(mapper.mapToJobListingSummaryReadOnlyDTO(jobListing)),
+                List.of(mapper.mapToJobListingSummaryReadOnlyDTO(jobListing, status)),
                 pageable,
                 1
         );

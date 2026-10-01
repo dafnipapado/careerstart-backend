@@ -127,7 +127,7 @@ public class Mapper {
         return new JobListingReadOnlyDTO(jobListing.getUuid().toString(), jobListing.getTitle(), jobListing.getEmployer().getBrandName());
     }
 
-    public JobListingSummaryReadOnlyDTO mapToJobListingSummaryReadOnlyDTO(JobListing jobListing) {
+    public JobListingSummaryReadOnlyDTO mapToJobListingSummaryReadOnlyDTO(JobListing jobListing, String status) {
         return new JobListingSummaryReadOnlyDTO(
                 jobListing.getUuid().toString(),
                 jobListing.getTitle(),
@@ -136,7 +136,8 @@ public class Mapper {
                 jobListing.getCreatedAt().toString(),
                 jobListing.getEmployer().getUuid().toString(),
                 jobListing.getEmployer().getBrandName(),
-                jobListing.isDeleted()
+                jobListing.isDeleted(),
+                status
         );
     }
 
