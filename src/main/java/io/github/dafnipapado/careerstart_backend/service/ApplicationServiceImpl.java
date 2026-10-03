@@ -4,6 +4,8 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityAlreadyExi
 import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundException;
 import io.github.dafnipapado.careerstart_backend.enums.Status;
 import io.github.dafnipapado.careerstart_backend.model.Application;
+import io.github.dafnipapado.careerstart_backend.model.JobListing;
+import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.repository.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,5 +50,13 @@ public class ApplicationServiceImpl implements IApplicationService{
     public Application getApplicationByJobSeekerUuidAndJobListingUuidDeletedFalse(UUID jobSeekerUuid, UUID jobListingUuid) throws EntityNotFoundException {
         return applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeekerUuid, jobListingUuid)
                 .orElseThrow(() -> new EntityNotFoundException("Application", "Active application not found"));
+    }
+
+    @Override
+    public String getStatus(JobSeeker jobSeeker, JobListing jobListing) {
+        return jobSeeker != null
+                ? applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeeker.getUuid(), jobListing.getUuid())
+                .map(application -> application.getStatus().toString()).orElse(null)
+                : null;
     }
 }

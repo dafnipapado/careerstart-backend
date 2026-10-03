@@ -4,12 +4,10 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundEx
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.*;
 import io.github.dafnipapado.careerstart_backend.filters.JobListingFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
-import io.github.dafnipapado.careerstart_backend.model.Application;
 import io.github.dafnipapado.careerstart_backend.model.JobListing;
 import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
-import io.github.dafnipapado.careerstart_backend.repository.ApplicationRepository;
 import io.github.dafnipapado.careerstart_backend.repository.JobListingRepository;
 import io.github.dafnipapado.careerstart_backend.specification.JobListingSpecification;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +29,10 @@ public class JobListingServiceImpl implements IJobListingService{
 
     private final Mapper mapper;
     private final JobListingRepository jobListingRepository;
-    private final ApplicationRepository applicationRepository;
     private final IEmployerService employerService;
     private final IRegionService regionService;
     private final IUserService userService;
+    private final IApplicationService applicationService;
 
     @Override
     @Transactional(rollbackFor = EntityNotFoundException.class)
@@ -108,9 +106,7 @@ public class JobListingServiceImpl implements IJobListingService{
     public JobListingDetailsReadOnlyDTO getSingleJobListingDeletedFalse(UUID uuid) throws EntityNotFoundException {
         JobListing jobListing = getJobListingByUuidDeletedFalse(uuid);
         JobSeeker jobSeeker = userService.getCurrentUser().getJobSeeker();
-        Application application = applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeeker.getUuid(), jobListing.getUuid())
-                .orElse(null);
-        String status = application != null ? application.getStatus().toString() : null;
+        String status = applicationService.getStatus(jobSeeker, jobListing);
 
         log.info("Active job listing with uuid = {" + uuid + "} was fetched successfully.");
         return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing, status);
@@ -122,9 +118,7 @@ public class JobListingServiceImpl implements IJobListingService{
 
         if (jobListingFilters.getUuid() != null) {
             JobListing jobListing = getJobListingByUuid(jobListingFilters.getUuid());
-            Application application = applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeeker.getUuid(), jobListing.getUuid())
-                    .orElse(null);
-            String status = application != null ? application.getStatus().toString() : null;
+            String status = applicationService.getStatus(jobSeeker, jobListing);
             return getSingleResultPage(jobListingFilters.getPageable(), jobListing, status);
         }
 
@@ -132,9 +126,7 @@ public class JobListingServiceImpl implements IJobListingService{
         log.info("Filtered {} job listings.", filtered.getNumberOfElements());
 
         return filtered.map(jobListing -> {
-            String status = applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeeker.getUuid(), jobListing.getUuid())
-                    .map(application -> application.getStatus().toString())
-                    .orElse(null);
+            String status = applicationService.getStatus(jobSeeker, jobListing);
             return mapper.mapToJobListingSummaryReadOnlyDTO(jobListing, status);
         });
     }
