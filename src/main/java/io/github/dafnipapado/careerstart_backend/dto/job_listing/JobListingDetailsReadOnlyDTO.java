@@ -11,6 +11,7 @@ public record JobListingDetailsReadOnlyDTO(
         Long regionId,
         String regionName,
         String dateCreated,
-        EmployerSummaryReadOnlyDTO employerSummaryReadOnlyDTO
+        EmployerSummaryReadOnlyDTO employerSummaryReadOnlyDTO,
+        String status
 ) {
 }

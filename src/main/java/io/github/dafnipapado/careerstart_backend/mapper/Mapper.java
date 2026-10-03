@@ -141,7 +141,7 @@ public class Mapper {
         );
     }
 
-    public JobListingDetailsReadOnlyDTO mapToJobListingDetailsReadOnlyDTO(JobListing jobListing) {
+    public JobListingDetailsReadOnlyDTO mapToJobListingDetailsReadOnlyDTO(JobListing jobListing, String status) {
         Employer employer = jobListing.getEmployer();
         return new JobListingDetailsReadOnlyDTO(
             jobListing.getUuid().toString(),
@@ -152,7 +152,8 @@ public class Mapper {
             jobListing.getRegion().getId(),
             jobListing.getRegion().getName(),
             jobListing.getCreatedAt().toString(),
-            mapToEmployerSummaryReadOnlyDTO(employer)
+            mapToEmployerSummaryReadOnlyDTO(employer),
+            status
         );
     }
 

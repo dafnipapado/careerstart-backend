@@ -101,15 +101,19 @@ public class JobListingServiceImpl implements IJobListingService{
         JobListing jobListing = getJobListingByUuid(uuid);
 
         log.info("Job listing with uuid = {" + uuid + "} was fetched successfully.");
-        return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing);
+        return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing, null);
     }
 
     @Override
     public JobListingDetailsReadOnlyDTO getSingleJobListingDeletedFalse(UUID uuid) throws EntityNotFoundException {
         JobListing jobListing = getJobListingByUuidDeletedFalse(uuid);
+        JobSeeker jobSeeker = userService.getCurrentUser().getJobSeeker();
+        Application application = applicationRepository.findByJobSeeker_UuidAndJobListing_UuidAndDeletedFalse(jobSeeker.getUuid(), jobListing.getUuid())
+                .orElse(null);
+        String status = application != null ? application.getStatus().toString() : null;
 
         log.info("Active job listing with uuid = {" + uuid + "} was fetched successfully.");
-        return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing);
+        return mapper.mapToJobListingDetailsReadOnlyDTO(jobListing, status);
     }
 
     @Override
