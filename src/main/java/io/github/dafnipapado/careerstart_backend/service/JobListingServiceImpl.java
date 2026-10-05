@@ -4,11 +4,13 @@ import io.github.dafnipapado.careerstart_backend.core.exception.EntityNotFoundEx
 import io.github.dafnipapado.careerstart_backend.dto.job_listing.*;
 import io.github.dafnipapado.careerstart_backend.filters.JobListingFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
+import io.github.dafnipapado.careerstart_backend.model.Application;
 import io.github.dafnipapado.careerstart_backend.model.JobListing;
 import io.github.dafnipapado.careerstart_backend.model.JobSeeker;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.repository.JobListingRepository;
+import io.github.dafnipapado.careerstart_backend.repository.JobSeekerRepository;
 import io.github.dafnipapado.careerstart_backend.specification.JobListingSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -29,6 +32,7 @@ public class JobListingServiceImpl implements IJobListingService{
 
     private final Mapper mapper;
     private final JobListingRepository jobListingRepository;
+    private final JobSeekerRepository jobSeekerRepository;
     private final IEmployerService employerService;
     private final IRegionService regionService;
     private final IUserService userService;
@@ -77,7 +81,12 @@ public class JobListingServiceImpl implements IJobListingService{
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public JobListingReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException {
         JobListing jobListing = getJobListingByUuidDeletedFalse(uuid);
+        Set<JobSeeker> jobSeekers = jobSeekerRepository.findByJobListings_Uuid(uuid);
+        Set<Application> applications = jobListing.getApplications();
+
+        jobSeekers.forEach(jobSeeker -> jobSeeker.removeJobListing(jobListing));
         jobListing.softDelete();
+        applications.forEach(Application::softDelete);
 
         log.info("Job listing with uuid = {" + uuid + "} was soft deleted successfully.");
 
