@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -46,6 +47,7 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     private final PersonalInfoRepository personalInfoRepository;
     private final AttachmentRepository attachmentRepository;
     private final ApplicationRepository applicationRepository;
+    private final JobListingRepository jobListingRepository;
     private final Mapper mapper;
     private final PasswordEncoder passwordEncoder;
     private static final String JOB_SEEKER_ROLE_NAME = "JOB_SEEKER";
@@ -126,9 +128,14 @@ public class JobSeekerServiceImpl implements IJobSeekerService{
     public JobSeekerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException {
 
         JobSeeker jobSeeker = getJobSeekerByUuidDeletedFalse(uuid);
+        Set<JobListing> jobListings = jobListingRepository.findByJobSeekers_Uuid(uuid);
+        Set<Application> applications = jobSeeker.getApplications();
+
+        jobListings.forEach(jobListing -> jobListing.removeJobSeeker(jobSeeker));
         jobSeeker.softDelete();
         jobSeeker.getUser().softDelete();
         jobSeeker.getPersonalInfo().softDelete();
+        applications.forEach(Application::softDelete);
 
         log.info("Job Seeker with uuid = {" + uuid + "} was soft deleted successfully.");
 

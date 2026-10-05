@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface JobListingRepository extends JpaRepository<JobListing, Long>, JpaSpecificationExecutor<JobListing> {
@@ -12,4 +13,5 @@ public interface JobListingRepository extends JpaRepository<JobListing, Long>, J
     Optional<JobListing> findByUuidAndDeletedFalse(UUID uuid);
     Optional<JobListing> findByUuidAndDeletedTrue(UUID uuid);
     long countByEmployerUuidAndDeletedFalse(UUID employerUuid);
+    Set<JobListing> findByJobSeekers_Uuid(UUID uuid);
 }
