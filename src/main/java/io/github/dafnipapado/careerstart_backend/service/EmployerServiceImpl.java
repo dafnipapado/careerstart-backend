@@ -9,10 +9,7 @@ import io.github.dafnipapado.careerstart_backend.dto.attachment.AttachmentUpload
 import io.github.dafnipapado.careerstart_backend.dto.employer.*;
 import io.github.dafnipapado.careerstart_backend.filters.EmployerFilters;
 import io.github.dafnipapado.careerstart_backend.mapper.Mapper;
-import io.github.dafnipapado.careerstart_backend.model.Attachment;
-import io.github.dafnipapado.careerstart_backend.model.Employer;
-import io.github.dafnipapado.careerstart_backend.model.PersonalInfo;
-import io.github.dafnipapado.careerstart_backend.model.User;
+import io.github.dafnipapado.careerstart_backend.model.*;
 import io.github.dafnipapado.careerstart_backend.model.static_data.ProfessionalField;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Region;
 import io.github.dafnipapado.careerstart_backend.model.static_data.Role;
@@ -148,6 +145,11 @@ public class EmployerServiceImpl implements IEmployerService{
     public EmployerReadOnlyDTO delete(UUID uuid) throws EntityNotFoundException {
 
         Employer employer = getEmployerByUuidDeletedFalse(uuid);
+
+        employer.getJobListings().forEach(jobListing -> {
+            jobListing.getApplications().forEach(Application::softDelete);
+            jobListing.softDelete();
+        });
         employer.softDelete();
         employer.getUser().softDelete();
         employer.getPersonalInfo().softDelete();
