@@ -17,7 +17,7 @@ public class JobListingFilters extends PaginationGenericFilters {
     private Long regionId;
     private Long professionalFieldId;
     private LocalDate createdAt;
-    private boolean deleted;
+    private Boolean deleted;
     private UUID employerUuid;
     private String employerBrandName;
     private UUID jobSeekerUuid;

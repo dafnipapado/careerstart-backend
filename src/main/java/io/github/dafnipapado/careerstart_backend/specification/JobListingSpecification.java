@@ -18,7 +18,7 @@ public class JobListingSpecification {
                 hasDateCreated(jobListingFilters.getCreatedAt()),
                 hasEmployerBrandName(jobListingFilters.getEmployerBrandName()),
                 hasEmployerUuid(jobListingFilters.getEmployerUuid()),
-                isDeleted(jobListingFilters.isDeleted()),
+                jobListingFilters.getDeleted() != null ? isDeleted(jobListingFilters.getDeleted()) : null,
                 hasJobSeekerUuid(jobListingFilters.getJobSeekerUuid())
         );
     }
